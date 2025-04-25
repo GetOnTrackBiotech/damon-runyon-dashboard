@@ -4,6 +4,19 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 
+# --- Excel Scanner for Debugging ---
+def scan_excel_file(file_path):
+    xls = pd.ExcelFile(file_path)
+    print(f"📊 Found Sheets: {xls.sheet_names}")
+    for sheet in xls.sheet_names:
+        print(f"\n--- Sheet: {sheet} ---")
+        df = pd.read_excel(file_path, sheet_name=sheet)
+        print(f"Columns: {df.columns.tolist()}")
+        print(df.head(3))
+
+# Run the scanner
+scan_excel_file('assets/damon_runyon_data.xlsx')
+
 # Use Bootstrap Theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.title = "Damon Runyon Dashboard | SOPHIA"
