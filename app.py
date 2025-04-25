@@ -4,40 +4,15 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 
-# --- Excel Scanner for Debugging ---
-def scan_excel_file(file_path):
-    xls = pd.ExcelFile(file_path)
-    print(f"📊 Found Sheets: {xls.sheet_names}")
-    for sheet in xls.sheet_names:
-        print(f"\n--- Sheet: {sheet} ---")
-        df = pd.read_excel(file_path, sheet_name=sheet)
-        print(f"Columns: {df.columns.tolist()}")
-        print(df.head(3))
-
-# Run the scanner
-scan_excel_file('assets/damon_runyon_data.xlsx')
-raise SystemExit("Stopping after scanning Excel for debugging.")
-
 # Use Bootstrap Theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.title = "Damon Runyon Dashboard | SOPHIA"
 
-# Load Data
-excel_file = 'assets/damon_runyon_data.xlsx'
-funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', header=4)
+# Load Data from Cleaned Excel
+excel_file = 'assets/damon_runyon_data_CLEAN.xlsx'
+funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact')
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
-
-# Load Data
-excel_file = 'assets/damon_runyon_data.xlsx'
-funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', header=4)
-awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
-scientists = funding_df[funding_df.columns[0]].dropna().unique()
-
-# TEMP DEBUG: Check if data is loading properly
-print(funding_df.head())
-print(f"Total Funding: {funding_df['Total Federal Funding (NIH only) Dollars Secured'].sum()}")
-print(f"Total Awards: {awards_df.shape[0]}")
 
 # --- Layout Components ---
 
