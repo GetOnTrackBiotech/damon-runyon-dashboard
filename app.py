@@ -107,4 +107,4 @@ def update_publications(selected_scientist):
 # Run the app
 if __name__ == '__main__':
     app.layout = publications_layout
-    app.run_server(debug=False, host='0.0.0.0', port=10000)
+    app.run(debug=False, host='0.0.0.0', port=10000)
