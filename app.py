@@ -4,8 +4,8 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 
-# Initialize App with Superhero Theme
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.SUPERHERO])
+# Initialize App with LUX Theme
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 app.title = "Damon Runyon Dashboard | SOPHIA"
 
 # Load Data
@@ -16,8 +16,7 @@ publications_df = pd.read_excel(excel_file, sheet_name='Publications (ICite #)')
 
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
-# --- Layout Components ---
-
+# Header
 header = dbc.NavbarSimple(
     brand="Damon Runyon Metrics Dashboard",
     brand_href="/",
@@ -26,6 +25,7 @@ header = dbc.NavbarSimple(
     className="mb-4"
 )
 
+# Sidebar
 sidebar = dbc.Nav(
     [
         dbc.NavLink("Overview", href="/", active="exact"),
@@ -39,11 +39,12 @@ sidebar = dbc.Nav(
     ],
     vertical=True,
     pills=True,
-    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px", "background-color": "#2c3e50"}
+    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px", "background": "#f8f9fa"}
 )
 
 content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
 
+# App Layout
 app.layout = html.Div([
     dcc.Location(id="url"),
     header,
@@ -51,86 +52,68 @@ app.layout = html.Div([
     content
 ])
 
-# --- Page Navigation Callback ---
-
+# Page Routing
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/publications':
+        return publications_layout()
+    elif pathname == '/funding':
+        fig = px.bar(funding_df, x=funding_df.columns[0],
+                     y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
+                     title='Total NIH Funding by Scientist', color=funding_df.columns[0])
+        return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
+    else:
+        total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].sum()
+        total_awards = awards_df.shape[0]
         return dbc.Container([
-            html.H2("Publications Overview", className="text-primary"),
-            html.P("Explore scientific productivity across Damon Runyon awardees. Use the dropdown to filter by individual scientists.",
-                   className="text-light"),
-            dcc.Dropdown(
-                id='pubs-scientist-dropdown',
-                options=[{'label': 'All Scientists', 'value': 'All'}] + 
-                        [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
-                value='All',
-                style={'width': '50%', 'position': 'sticky', 'top': '80px', 'zIndex': 1000, 'margin-bottom': '20px'}
-            ),
+            html.H2("Overview"),
             dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5("Total Publications", className="card-title"),
-                    html.H3(id='total-pubs')
-                ]), className="mb-4 shadow rounded")),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5("Avg Pubs Per Year", className="card-title"),
-                    html.H3(id='avg-pubs-year')
-                ]), className="mb-4 shadow rounded")),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5("% Pubs in Top 10%", className="card-title"),
-                    html.H3(id='top10-pubs')
-                ]), className="mb-4 shadow rounded")),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5("Avg Weighted RCR", className="card-title"),
-                    html.H3(id='avg-rcr')
-                ]), className="mb-4 shadow rounded")),
-            ]),
-            dcc.Graph(id='pubs-chart', className="shadow rounded")
-        ])
-    else:
-        return dbc.Container([
-            html.H2("Welcome to the Damon Runyon Dashboard", className="text-primary"),
-            html.P("Use the sidebar to navigate through key metrics, funding data, publications, and career achievements.",
-                   className="text-light")
+                kpi_card("Total NIH Funding", f"${total_funding:,.0f}"),
+                kpi_card("Total Awards", f"{total_awards}", color="info")
+            ])
         ])
 
-# --- Publications Callback ---
+# KPI Card Component
+def kpi_card(title, value, color="primary"):
+    return dbc.Col(dbc.Card(
+        dbc.CardBody([
+            html.H5(title, className="card-title"),
+            html.H2(value)
+        ]),
+        className="shadow-sm rounded"
+    ), width=3)
 
-@app.callback(
-    [Output('total-pubs', 'children'),
-     Output('avg-pubs-year', 'children'),
-     Output('top10-pubs', 'children'),
-     Output('avg-rcr', 'children'),
-     Output('pubs-chart', 'figure')],
-    [Input('pubs-scientist-dropdown', 'value')]
-)
-def update_publications_section(selected_scientist):
-    if selected_scientist == 'All':
-        df = publications_df.copy()
-    else:
-        df = publications_df[publications_df['Scientist Name'] == selected_scientist]
-    
-    total_pubs = df['Total Pubs'].sum()
-    avg_pubs_year = round(df['Pubs Per Year'].mean(), 2)
+# Publications Page Layout
+def publications_layout():
+    return dbc.Container([
+        html.H2("Publications Overview"),
+        html.P("Explore publication productivity and impact across Damon Runyon scientists."),
+        dcc.Dropdown(
+            id='pubs-scientist-dropdown',
+            options=[{'label': 'All Scientists', 'value': 'All'}] + 
+                    [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
+            value='All',
+            style={'width': '50%', 'position': 'sticky', 'top': '80px', 'zIndex': 1000, 'margin-bottom': '20px'}
+        ),
+        dbc.Row([
+            kpi_card("Total Publications", "", "primary"),
+            kpi_card("Avg Pubs Per Year", "", "info"),
+            kpi_card("% Pubs in Top 10%", "", "success"),
+            kpi_card("Avg Weighted RCR", "", "warning")
+        ], className="mb-4"),
 
-    if df['% of pubs in Top 10%'].dtype == 'O':
-        pct_values = df['% of pubs in Top 10%'].str.replace('%','').astype(float)
-    else:
-        pct_values = df['% of pubs in Top 10%']
-    top10_pct = f"{round(pct_values.mean(), 1)}%"
-
-    avg_rcr = round(df['Weighted RCR'].mean(), 2)
-    
-    fig = px.bar(df, x='Scientist Name', y='Pubs Per Year', color='Scientist Name',
-                 title='Publications Per Year',
-                 template='plotly_dark')
-    
-    return total_pubs, avg_pubs_year, top10_pct, avg_rcr, fig
-
-# --- Run App ---
-if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=10000)
-
-
-
+        dbc.Accordion([
+            dbc.AccordionItem([
+                dcc.Graph(id='chart-top10')
+            ], title="Count of Publications in Top 10%"),
+            dbc.AccordionItem([
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='chart-pubs-year')),
+                    dbc.Col(dcc.Graph(id='chart-total-pubs'))
+                ])
+            ], title="Productivity Metrics"),
+            dbc.AccordionItem([
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='chart-weighted-rcr')),
+                    dbc.Col(dcc.Graph(id
