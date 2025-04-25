@@ -14,6 +14,17 @@ funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', 
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
+# Load Data
+excel_file = 'assets/damon_runyon_data.xlsx'
+funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', header=4)
+awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
+scientists = funding_df[funding_df.columns[0]].dropna().unique()
+
+# TEMP DEBUG: Check if data is loading properly
+print(funding_df.head())
+print(f"Total Funding: {funding_df['Total Federal Funding (NIH only) Dollars Secured'].sum()}")
+print(f"Total Awards: {awards_df.shape[0]}")
+
 # --- Layout Components ---
 
 # Header / Banner
