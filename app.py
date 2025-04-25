@@ -12,6 +12,8 @@ app.title = "Damon Runyon Dashboard | SOPHIA"
 excel_file = 'assets/damon_runyon_data_CLEAN.xlsx'
 funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact')
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
+publications_df = pd.read_excel(excel_file, sheet_name='Publications (ICite #)')
+
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
 # --- Layout Components ---
@@ -55,7 +57,7 @@ app.layout = html.Div([
     content
 ])
 
-# --- Page Callbacks ---
+# --- Page Navigation Callback ---
 
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
@@ -70,11 +72,38 @@ def display_page(pathname):
             html.H2("NIH Funding"),
             dcc.Graph(figure=fig)
         ])
+    
     elif pathname == '/publications':
         return dbc.Container([
-            html.H2("Publications"),
-            html.P("Publications data and charts coming soon...")
+            html.H2("Publications Overview"),
+            dcc.Dropdown(
+                id='pubs-scientist-dropdown',
+                options=[{'label': 'All Scientists', 'value': 'All'}] + 
+                        [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
+                value='All',
+                style={'width': '50%', 'margin-bottom': '20px'}
+            ),
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Total Publications"),
+                    html.H3(id='total-pubs')
+                ]), color="primary", inverse=True)),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Avg Pubs Per Year"),
+                    html.H3(id='avg-pubs-year')
+                ]), color="info", inverse=True)),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("% Pubs in Top 10%"),
+                    html.H3(id='top10-pubs')
+                ]), color="success", inverse=True)),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Avg Weighted RCR"),
+                    html.H3(id='avg-rcr')
+                ]), color="warning", inverse=True)),
+            ], className="mb-4"),
+            dcc.Graph(id='pubs-chart')
         ])
+
     elif pathname == '/impact':
         return dbc.Container([
             html.H2("Publication Impact"),
@@ -124,6 +153,8 @@ def display_page(pathname):
             ])
         ])
 
+# --- Scientist Drill-Down Callback ---
+
 @app.callback(
     Output('scientist-output', 'children'),
     Input('scientist-dropdown', 'value')
@@ -138,6 +169,34 @@ def update_scientist_info(selected_scientist):
         html.P(f"Total NIH Funding: ${funding_row['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].values[0]:,.0f}"),
         html.P(f"Awards: {', '.join(awards) if awards else 'None'}")
     ])
+
+# --- Publications Section Callback ---
+
+@app.callback(
+    [Output('total-pubs', 'children'),
+     Output('avg-pubs-year', 'children'),
+     Output('top10-pubs', 'children'),
+     Output('avg-rcr', 'children'),
+     Output('pubs-chart', 'figure')],
+    [Input('pubs-scientist-dropdown', 'value')]
+)
+def update_publications_section(selected_scientist):
+    if selected_scientist == 'All':
+        df = publications_df.copy()
+    else:
+        df = publications_df[publications_df['Scientist Name'] == selected_scientist]
+    
+    total_pubs = df['Total Pubs'].sum()
+    avg_pubs_year = round(df['Pubs Per Year'].mean(), 2)
+    top10_pct = f"{round(df['% of pubs in Top 10%'].str.replace('%','').astype(float).mean(), 1)}%"
+    avg_rcr = round(df['Weighted RCR'].mean(), 2)
+    
+    fig = px.bar(df, x='Scientist Name', y='Pubs Per Year', color='Scientist Name',
+                 title='Publications Per Year')
+    
+    return total_pubs, avg_pubs_year, top10_pct, avg_rcr, fig
+
+# --- Run App ---
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=10000)
