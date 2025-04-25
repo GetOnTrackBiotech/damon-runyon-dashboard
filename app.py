@@ -1,54 +1,70 @@
 import dash
 from dash import dcc, html, Input, Output
+import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
+
+# Use Bootstrap Theme
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+app.title = "Damon Runyon Dashboard | SOPHIA"
 
 # Load Data
 excel_file = 'assets/damon_runyon_data.xlsx'
 funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', header=4)
-
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
-
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
-# Initialize App
-app = dash.Dash(__name__)
-app.title = "Damon Runyon Metrics Dashboard"
+# --- Layout Components ---
 
-# Sidebar Style
-sidebar = html.Div(
-    [
-        html.H2("Menu", style={'color': '#4c00b0'}),
-        dcc.Link('Overview', href='/', style={'display': 'block', 'margin': '10px 0'}),
-        dcc.Link('NIH Funding', href='/funding', style={'display': 'block', 'margin': '10px 0'}),
-        dcc.Link('Scientist Drill-Down', href='/drilldown', style={'display': 'block', 'margin': '10px 0'}),
-    ],
-    style={'width': '20%', 'display': 'inline-block', 'verticalAlign': 'top', 'padding': '20px'}
+# Header / Banner
+header = dbc.NavbarSimple(
+    brand="Damon Runyon Metrics Dashboard",
+    brand_href="/",
+    color="#4c00b0",
+    dark=True,
+    children=[
+        dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white", "margin-right": "15px"})),
+    ]
 )
 
-# Content Placeholder
-content = html.Div(id='page-content', style={'width': '75%', 'display': 'inline-block', 'padding': '20px'})
+# Sidebar Navigation
+sidebar = dbc.Nav(
+    [
+        dbc.NavLink("Overview", href="/", active="exact"),
+        dbc.NavLink("NIH Funding", href="/funding", active="exact"),
+        dbc.NavLink("Scientist Drill-Down", href="/drilldown", active="exact"),
+    ],
+    vertical=True,
+    pills=True,
+    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "200px", "padding": "20px", "background-color": "#f8f9fa"}
+)
 
+# Content Area
+content = html.Div(id="page-content", style={"margin-left": "220px", "padding": "20px"})
+
+# App Layout
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
+    dcc.Location(id="url"),
+    header,
     sidebar,
     content
 ])
-# Define Pages
+
+# --- Page Callbacks ---
+
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/funding':
-        fig = px.bar(funding_df, x='Scientist Name', y='Total Federal Funding (NIH only) Dollars Secured', 
-                     title='Total NIH Funding by Scientist', color='Scientist Name')
-        return html.Div([
-            html.H3('NIH Funding Overview', style={'color': '#4c00b0'}),
-            dcc.Graph(figure=fig),
-            html.A('View Data', href='/assets/damon_runyon_data.xlsx', target='_blank')
+        fig = px.bar(funding_df, x=funding_df.columns[0], y='Total Federal Funding (NIH only) Dollars Secured',
+                     title='Total NIH Funding by Scientist', color=funding_df.columns[0])
+        return dbc.Container([
+            html.H2("NIH Funding"),
+            dcc.Graph(figure=fig)
         ])
     elif pathname == '/drilldown':
-        return html.Div([
-            html.H3('Scientist Drill-Down', style={'color': '#4c00b0'}),
+        return dbc.Container([
+            html.H2("Scientist Drill-Down"),
             dcc.Dropdown(options=[{'label': sci, 'value': sci} for sci in scientists],
                          id='scientist-dropdown',
                          placeholder='Select a Scientist'),
@@ -57,13 +73,24 @@ def display_page(pathname):
     else:
         total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured'].sum()
         total_awards = awards_df.shape[0]
-        return html.Div([
-            html.H3('Overview', style={'color': '#4c00b0'}),
-            html.P(f"Total NIH Funding Secured: ${total_funding:,.0f}"),
-            html.P(f"Total Awards & Recognitions: {total_awards}")
+        return dbc.Container([
+            html.H2("Overview"),
+            dbc.Row([
+                dbc.Col(dbc.Card([
+                    dbc.CardBody([
+                        html.H4("Total NIH Funding", className="card-title"),
+                        html.H2(f"${total_funding:,.0f}")
+                    ])
+                ], color="primary", inverse=True)),
+                dbc.Col(dbc.Card([
+                    dbc.CardBody([
+                        html.H4("Total Awards", className="card-title"),
+                        html.H2(f"{total_awards}")
+                    ])
+                ], color="info", inverse=True)),
+            ])
         ])
 
-# Drill-Down Callback
 @app.callback(
     Output('scientist-output', 'children'),
     Input('scientist-dropdown', 'value')
@@ -71,7 +98,7 @@ def display_page(pathname):
 def update_scientist_info(selected_scientist):
     if not selected_scientist:
         return ""
-    funding_row = funding_df[funding_df['Scientist Name'] == selected_scientist]
+    funding_row = funding_df[funding_df[funding_df.columns[0]] == selected_scientist]
     awards = awards_df[awards_df['Scientist Name'] == selected_scientist]['Awards'].tolist()
     return html.Div([
         html.H4(f"Details for {selected_scientist}"),
@@ -80,5 +107,4 @@ def update_scientist_info(selected_scientist):
     ])
 
 if __name__ == '__main__':
-   app.run(debug=False, host='0.0.0.0', port=10000)
-
+    app.run(debug=False, host='0.0.0.0', port=10000)
