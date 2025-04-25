@@ -188,13 +188,13 @@ def update_publications_section(selected_scientist):
     
     total_pubs = df['Total Pubs'].sum()
     avg_pubs_year = round(df['Pubs Per Year'].mean(), 2)
-if df['% of pubs in Top 10%'].dtype == 'O':  # 'O' = object = string
-    pct_values = df['% of pubs in Top 10%'].str.replace('%','').astype(float)
-else:
-    pct_values = df['% of pubs in Top 10%']
-
-top10_pct = f"{round(pct_values.mean(), 1)}%"
-
+    
+    if df['% of pubs in Top 10%'].dtype == 'O':  # Check if string
+        pct_values = df['% of pubs in Top 10%'].str.replace('%','').astype(float)
+    else:
+        pct_values = df['% of pubs in Top 10%']
+    
+    top10_pct = f"{round(pct_values.mean(), 1)}%"
     avg_rcr = round(df['Weighted RCR'].mean(), 2)
     
     fig = px.bar(df, x='Scientist Name', y='Pubs Per Year', color='Scientist Name',
@@ -206,3 +206,5 @@ top10_pct = f"{round(pct_values.mean(), 1)}%"
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=10000)
+
+ 
