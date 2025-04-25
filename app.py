@@ -14,6 +14,9 @@ funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact')
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
+print(funding_df.columns.tolist())
+print(awards_df.columns.tolist())
+
 # --- Layout Components ---
 
 # Header / Banner
