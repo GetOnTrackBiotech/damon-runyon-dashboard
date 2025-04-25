@@ -32,15 +32,20 @@ sidebar = dbc.Nav(
     [
         dbc.NavLink("Overview", href="/", active="exact"),
         dbc.NavLink("NIH Funding", href="/funding", active="exact"),
+        dbc.NavLink("Publications", href="/publications", active="exact"),
+        dbc.NavLink("Publication Impact", href="/impact", active="exact"),
+        dbc.NavLink("Companies & Career Timeline", href="/companies", active="exact"),
+        dbc.NavLink("Entrepreneurship", href="/entrepreneurship", active="exact"),
+        dbc.NavLink("Awards & Recognitions", href="/awards", active="exact"),
         dbc.NavLink("Scientist Drill-Down", href="/drilldown", active="exact"),
     ],
     vertical=True,
     pills=True,
-    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "200px", "padding": "20px", "background-color": "#f8f9fa"}
+    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px", "background-color": "#f8f9fa"}
 )
 
 # Content Area
-content = html.Div(id="page-content", style={"margin-left": "220px", "padding": "20px"})
+content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
 
 # App Layout
 app.layout = html.Div([
@@ -64,6 +69,31 @@ def display_page(pathname):
         return dbc.Container([
             html.H2("NIH Funding"),
             dcc.Graph(figure=fig)
+        ])
+    elif pathname == '/publications':
+        return dbc.Container([
+            html.H2("Publications"),
+            html.P("Publications data and charts coming soon...")
+        ])
+    elif pathname == '/impact':
+        return dbc.Container([
+            html.H2("Publication Impact"),
+            html.P("Impact metrics and visuals coming soon...")
+        ])
+    elif pathname == '/companies':
+        return dbc.Container([
+            html.H2("Companies & Career Timeline"),
+            html.P("Career timelines and company data coming soon...")
+        ])
+    elif pathname == '/entrepreneurship':
+        return dbc.Container([
+            html.H2("Entrepreneurship"),
+            html.P("Startups, IPOs, patents, and more coming soon...")
+        ])
+    elif pathname == '/awards':
+        return dbc.Container([
+            html.H2("Awards & Recognitions"),
+            html.P("Awards data and highlights coming soon...")
         ])
     elif pathname == '/drilldown':
         return dbc.Container([
