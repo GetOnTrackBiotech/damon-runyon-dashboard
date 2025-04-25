@@ -16,6 +16,7 @@ def scan_excel_file(file_path):
 
 # Run the scanner
 scan_excel_file('assets/damon_runyon_data.xlsx')
+raise SystemExit("Stopping after scanning Excel for debugging.")
 
 # Use Bootstrap Theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
