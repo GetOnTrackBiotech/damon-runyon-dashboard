@@ -2,3 +2,5 @@ dash
 pandas
 plotly
 openpyxl
+dash-bootstrap-components
+
