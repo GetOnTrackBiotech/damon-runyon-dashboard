@@ -6,10 +6,10 @@ import plotly.express as px
 # Load Data
 excel_file = 'assets/damon_runyon_data.xlsx'
 funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact', header=4)
-print(funding_df.columns.tolist())
+
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 
-# scientists = funding_df['Scientist Name'].dropna().unique()
+scientists = funding_df['Scientist Name'].dropna().unique()
 
 # Initialize App
 app = dash.Dash(__name__)
