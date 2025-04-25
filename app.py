@@ -14,9 +14,6 @@ funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact')
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
-print(funding_df.columns.tolist())
-print(awards_df.columns.tolist())
-
 # --- Layout Components ---
 
 # Header / Banner
@@ -59,8 +56,11 @@ app.layout = html.Div([
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/funding':
-        fig = px.bar(funding_df, x=funding_df.columns[0], y='Total Federal Funding (NIH only) Dollars Secured',
-                     title='Total NIH Funding by Scientist', color=funding_df.columns[0])
+        fig = px.bar(funding_df, 
+                     x=funding_df.columns[0], 
+                     y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
+                     title='Total NIH Funding by Scientist', 
+                     color=funding_df.columns[0])
         return dbc.Container([
             html.H2("NIH Funding"),
             dcc.Graph(figure=fig)
@@ -74,7 +74,7 @@ def display_page(pathname):
             html.Div(id='scientist-output')
         ])
     else:
-        total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured'].sum()
+        total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].sum()
         total_awards = awards_df.shape[0]
         return dbc.Container([
             html.H2("Overview"),
@@ -105,7 +105,7 @@ def update_scientist_info(selected_scientist):
     awards = awards_df[awards_df['Scientist Name'] == selected_scientist]['Awards'].tolist()
     return html.Div([
         html.H4(f"Details for {selected_scientist}"),
-        html.P(f"Total NIH Funding: ${funding_row['Total Federal Funding (NIH only) Dollars Secured'].values[0]:,.0f}"),
+        html.P(f"Total NIH Funding: ${funding_row['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].values[0]:,.0f}"),
         html.P(f"Awards: {', '.join(awards) if awards else 'None'}")
     ])
 
