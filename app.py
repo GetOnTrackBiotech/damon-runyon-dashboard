@@ -4,8 +4,8 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 
-# Initialize App with Bootstrap
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+# Initialize App with LUX Bootstrap Theme
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
 app.title = "Damon Runyon Dashboard | SOPHIA"
 
 # Load Data
@@ -22,7 +22,7 @@ header = dbc.NavbarSimple(
     brand_href="/",
     color="#4c00b0",
     dark=True,
-    children=[dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white"}) )]
+    className="mb-4 shadow-sm rounded"
 )
 
 sidebar = dbc.Nav(
@@ -38,7 +38,8 @@ sidebar = dbc.Nav(
     ],
     vertical=True,
     pills=True,
-    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px", "background-color": "#f8f9fa"}
+    className="bg-light",
+    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px"}
 )
 
 content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
@@ -60,11 +61,15 @@ def display_page(pathname):
                      y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
                      title='Total NIH Funding by Scientist', 
                      color=funding_df.columns[0])
-        return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
+        return dbc.Container([
+            html.H2("NIH Funding Overview", className="mt-4"),
+            html.P("This section highlights total NIH funding secured by Damon Runyon scientists post-award."),
+            dcc.Graph(figure=fig, className="shadow p-3 mb-5 bg-white rounded")
+        ])
     
     elif pathname == '/publications':
         return dbc.Container([
-            html.H2("Publications Overview"),
+            html.H2("Publications Overview", className="mt-4"),
             html.P("Explore publication productivity and impact across Damon Runyon scientists."),
             dcc.Dropdown(
                 id='pubs-scientist-dropdown',
@@ -74,49 +79,44 @@ def display_page(pathname):
                 style={'width': '50%', 'margin-bottom': '20px'}
             ),
             dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Total Publications"), html.H3(id='total-pubs')]), color="primary", inverse=True)),
-                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Avg Pubs Per Year"), html.H3(id='avg-pubs-year')]), color="info", inverse=True)),
-                dbc.Col(dbc.Card(dbc.CardBody([html.H5("% Pubs in Top 10%"), html.H3(id='top10-pubs')]), color="success", inverse=True)),
-                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Avg Weighted RCR"), html.H3(id='avg-rcr')]), color="warning", inverse=True)),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Total Publications"), html.H3(id='total-pubs')]), color="primary", inverse=True, className="shadow rounded")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Avg Pubs Per Year"), html.H3(id='avg-pubs-year')]), color="info", inverse=True, className="shadow rounded")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H5("% Pubs in Top 10%"), html.H3(id='top10-pubs')]), color="success", inverse=True, className="shadow rounded")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H5("Avg Weighted RCR"), html.H3(id='avg-rcr')]), color="warning", inverse=True, className="shadow rounded")),
             ], className="mb-4"),
-            dcc.Graph(id='top10-chart'),
+            dcc.Graph(id='top10-chart', className="shadow rounded mb-4"),
             dbc.Row([
-                dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
-                dbc.Col(dcc.Graph(id='total-pubs-chart')),
-            ]),
+                dbc.Col(dcc.Graph(id='pubs-per-year-chart', className="shadow rounded")),
+                dbc.Col(dcc.Graph(id='total-pubs-chart', className="shadow rounded")),
+            ], className="mb-4"),
             dbc.Row([
-                dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
-                dbc.Col(dcc.Graph(id='mean-rcr-chart')),
-            ]),
+                dbc.Col(dcc.Graph(id='weighted-rcr-chart', className="shadow rounded")),
+                dbc.Col(dbc.Graph(id='mean-rcr-chart', className="shadow rounded")),
+            ], className="mb-4"),
             dbc.Row([
-                dbc.Col(dcc.Graph(id='avg-apt-chart')),
-                dbc.Col(dcc.Graph(id='cited-clin-chart')),
+                dbc.Col(dcc.Graph(id='avg-apt-chart', className="shadow rounded")),
+                dbc.Col(dcc.Graph(id='cited-clin-chart', className="shadow rounded")),
             ])
         ])
-
-    elif pathname == '/impact':
-        return dbc.Container([html.H2("Publication Impact"), html.P("Impact metrics and visuals coming soon...")])
-    elif pathname == '/companies':
-        return dbc.Container([html.H2("Companies & Career Timeline"), html.P("Career timelines and company data coming soon...")])
-    elif pathname == '/entrepreneurship':
-        return dbc.Container([html.H2("Entrepreneurship"), html.P("Startups, IPOs, patents, and more coming soon...")])
-    elif pathname == '/awards':
-        return dbc.Container([html.H2("Awards & Recognitions"), html.P("Awards data and highlights coming soon...")])
+    
     elif pathname == '/drilldown':
         return dbc.Container([
-            html.H2("Scientist Drill-Down"),
+            html.H2("Scientist Drill-Down", className="mt-4"),
+            html.P("Select a scientist to view detailed funding and award data."),
             dcc.Dropdown(options=[{'label': sci, 'value': sci} for sci in scientists],
-                         id='scientist-dropdown', placeholder='Select a Scientist'),
-            html.Div(id='scientist-output')
+                         id='scientist-dropdown', placeholder='Select a Scientist', style={'width': '50%'}),
+            html.Div(id='scientist-output', className="mt-4")
         ])
+
     else:
         total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].sum()
         total_awards = awards_df.shape[0]
         return dbc.Container([
-            html.H2("Overview"),
+            html.H2("Dashboard Overview", className="mt-4"),
+            html.P("A summary of NIH funding and key recognitions across Damon Runyon scientists."),
             dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Total NIH Funding"), html.H2(f"${total_funding:,.0f}")]), color="primary", inverse=True)),
-                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Total Awards"), html.H2(f"{total_awards}")]), color="info", inverse=True)),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Total NIH Funding"), html.H2(f"${total_funding:,.0f}")]), color="primary", inverse=True, className="shadow rounded")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.H4("Total Awards"), html.H2(f"{total_awards}")]), color="info", inverse=True, className="shadow rounded")),
             ])
         ])
 
