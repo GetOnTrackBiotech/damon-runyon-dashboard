@@ -51,8 +51,7 @@ app.layout = html.Div([
     dcc.Location(id="url"),
     header,
     sidebar,
-    content,
-    tooltips
+    content
 ])
 # --- Page Routing Callback ---
 @app.callback(Output('page-content', 'children'),
