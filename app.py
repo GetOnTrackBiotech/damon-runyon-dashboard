@@ -65,7 +65,7 @@ def display_page(pathname):
                      color=funding_df.columns[0])
         return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
 
-    elif pathname == '/publications':
+       elif pathname == '/publications':
         return dbc.Container([
             html.H2("Publications Overview"),
             html.P("Explore publication productivity and impact across Damon Runyon scientists."),
