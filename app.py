@@ -70,7 +70,7 @@ def display_page(pathname):
                 options=[{'label': 'All Scientists', 'value': 'All'}] + 
                         [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
                 value='All',
-                style={'width': '50%', 'margin-bottom': '20px'}
+                style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
             ),
             dbc.Row([
                 dbc.Col(dbc.Card(dbc.CardBody([html.H5("Total Publications"), html.H3(id='total-pubs')]), color="primary", inverse=True)),
@@ -79,20 +79,23 @@ def display_page(pathname):
                 dbc.Col(dbc.Card(dbc.CardBody([html.H5("Avg Weighted RCR"), html.H3(id='avg-rcr')]), color="warning", inverse=True)),
             ], className="mb-4"),
             dcc.Graph(id='top10-chart'),
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
-                dbc.Col(dcc.Graph(id='total-pubs-chart')),
-            ]),
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
-                dbc.Col(dcc.Graph(id='mean-rcr-chart')),
-            ]),
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='avg-apt-chart')),
-                dbc.Col(dcc.Graph(id='cited-clin-chart')),
-            ])
+            dbc.Accordion([
+                dbc.AccordionItem([
+                    dbc.Row([
+                        dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
+                        dbc.Col(dcc.Graph(id='total-pubs-chart')),
+                    ]),
+                    dbc.Row([
+                        dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
+                        dbc.Col(dcc.Graph(id='mean-rcr-chart')),
+                    ]),
+                    dbc.Row([
+                        dbc.Col(dcc.Graph(id='avg-apt-chart')),
+                        dbc.Col(dcc.Graph(id='cited-clin-chart')),
+                    ])
+                ], title="View Detailed Publication Metrics")
+            ], start_collapsed=True)
         ])
-
     elif pathname == '/impact':
         return dbc.Container([html.H2("Publication Impact"), html.P("Impact metrics and visuals coming soon...")])
     elif pathname == '/companies':
