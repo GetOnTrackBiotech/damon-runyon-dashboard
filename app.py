@@ -25,7 +25,7 @@ header = dbc.NavbarSimple(
     brand_href="/",
     color="#4c00b0",
     dark=True,
-    children=[dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white"}) )]
+    children=[dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white"}))]
 )
 
 sidebar = dbc.Nav(
@@ -41,12 +41,12 @@ sidebar = dbc.Nav(
     ],
     vertical=True,
     pills=True,
-    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0, "width": "250px", "padding": "20px", "background-color": "#f8f9fa"}
+    style={"position": "fixed", "top": "70px", "left": 0, "bottom": 0,
+           "width": "250px", "padding": "20px", "background-color": "#f8f9fa"}
 )
 
 content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
 
-# Tooltips for KPI Cards
 app.layout = html.Div([
     dcc.Location(id="url"),
     header,
@@ -58,10 +58,10 @@ app.layout = html.Div([
               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/funding':
-        fig = px.bar(funding_df, 
-                     x=funding_df.columns[0], 
+        fig = px.bar(funding_df,
+                     x=funding_df.columns[0],
                      y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
-                     title='Total NIH Funding by Scientist', 
+                     title='Total NIH Funding by Scientist',
                      color=funding_df.columns[0])
         return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
 
@@ -71,7 +71,7 @@ def display_page(pathname):
             html.P("Explore publication productivity and impact across Damon Runyon scientists."),
             dcc.Dropdown(
                 id='pubs-scientist-dropdown',
-                options=[{'label': 'All Scientists', 'value': 'All'}] + 
+                options=[{'label': 'All Scientists', 'value': 'All'}] +
                         [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
                 value='All',
                 style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
@@ -127,7 +127,6 @@ def display_page(pathname):
                 ], title="Translational Reach"),
             ], start_collapsed=True),
 
-            # Tooltips
             dbc.Tooltip("Total number of publications by the selected scientist(s).", target="tooltip-total-pubs", placement="top"),
             dbc.Tooltip("Average number of publications per year.", target="tooltip-avg-pubs-year", placement="top"),
             dbc.Tooltip("Percentage of publications ranked in the top 10% by citations.", target="tooltip-top10", placement="top"),
@@ -186,142 +185,6 @@ def display_page(pathname):
                 ]), color="info", inverse=True)),
             ])
         ])
-
-# --- Scientist Drill-Down Callback ---
-
-@app.callback(Output('page-content', 'children'),
-              Input('url', 'pathname'))
-def display_page(pathname):
-    if pathname == '/funding':
-        fig = px.bar(funding_df, 
-                     x=funding_df.columns[0], 
-                     y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
-                     title='Total NIH Funding by Scientist', 
-                     color=funding_df.columns[0])
-        return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
-
-    elif pathname == '/publications':
-        return dbc.Container([
-            html.H2("Publications Overview"),
-            html.P("Explore publication productivity and impact across Damon Runyon scientists."),
-            dcc.Dropdown(
-                id='pubs-scientist-dropdown',
-                options=[{'label': 'All Scientists', 'value': 'All'}] + 
-                        [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
-                value='All',
-                style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
-            ),
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5(["Total Publications ",
-                             html.I(className="bi bi-info-circle-fill", id="tooltip-total-pubs", style={"cursor": "pointer"})]),
-                    html.H3(id='total-pubs')
-                ]), color="primary", inverse=True)),
-
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5(["Avg Pubs Per Year ",
-                             html.I(className="bi bi-info-circle-fill", id="tooltip-avg-pubs-year", style={"cursor": "pointer"})]),
-                    html.H3(id='avg-pubs-year')
-                ]), color="info", inverse=True)),
-
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5(["% Pubs in Top 10% ",
-                             html.I(className="bi bi-info-circle-fill", id="tooltip-top10", style={"cursor": "pointer"})]),
-                    html.H3(id='top10-pubs')
-                ]), color="success", inverse=True)),
-
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H5(["Avg Weighted RCR ",
-                             html.I(className="bi bi-info-circle-fill", id="tooltip-avg-rcr", style={"cursor": "pointer"})]),
-                    html.H3(id='avg-rcr')
-                ]), color="warning", inverse=True)),
-            ], className="mb-4"),
-
-            dcc.Graph(id='top10-chart'),
-
-            dbc.Accordion([
-                dbc.AccordionItem([
-                    dbc.Row([
-                        dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
-                        dbc.Col(dcc.Graph(id='total-pubs-chart')),
-                    ])
-                ], title="Productivity Metrics"),
-
-                dbc.AccordionItem([
-                    dbc.Row([
-                        dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
-                        dbc.Col(dcc.Graph(id='mean-rcr-chart')),
-                    ])
-                ], title="Citation Impact"),
-
-                dbc.AccordionItem([
-                    dbc.Row([
-                        dbc.Col(dcc.Graph(id='avg-apt-chart')),
-                        dbc.Col(dcc.Graph(id='cited-clin-chart')),
-                    ])
-                ], title="Translational Reach"),
-            ], start_collapsed=True),
-
-            # Tooltips
-            dbc.Tooltip("Total number of publications by the selected scientist(s).", target="tooltip-total-pubs", placement="top"),
-            dbc.Tooltip("Average number of publications per year.", target="tooltip-avg-pubs-year", placement="top"),
-            dbc.Tooltip("Percentage of publications ranked in the top 10% by citations.", target="tooltip-top10", placement="top"),
-            dbc.Tooltip("Average weighted Relative Citation Ratio, indicating citation impact.", target="tooltip-avg-rcr", placement="top"),
-        ])
-
-    elif pathname == '/impact':
-        return dbc.Container([
-            html.H2("Publication Impact"),
-            html.P("Impact metrics and visuals coming soon...")
-        ])
-
-    elif pathname == '/companies':
-        return dbc.Container([
-            html.H2("Companies & Career Timeline"),
-            html.P("Career timelines and company data coming soon...")
-        ])
-
-    elif pathname == '/entrepreneurship':
-        return dbc.Container([
-            html.H2("Entrepreneurship"),
-            html.P("Startups, IPOs, patents, and more coming soon...")
-        ])
-
-    elif pathname == '/awards':
-        return dbc.Container([
-            html.H2("Awards & Recognitions"),
-            html.P("Awards data and highlights coming soon...")
-        ])
-
-    elif pathname == '/drilldown':
-        return dbc.Container([
-            html.H2("Scientist Drill-Down"),
-            dcc.Dropdown(
-                options=[{'label': sci, 'value': sci} for sci in scientists],
-                id='scientist-dropdown',
-                placeholder='Select a Scientist'
-            ),
-            html.Div(id='scientist-output')
-        ])
-
-    else:
-        total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].sum()
-        total_awards = awards_df.shape[0]
-        return dbc.Container([
-            html.H2("Overview"),
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Total NIH Funding"),
-                    html.H2(f"${total_funding:,.0f}")
-                ]), color="primary", inverse=True)),
-
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Total Awards"),
-                    html.H2(f"{total_awards}")
-                ]), color="info", inverse=True)),
-            ])
-        ])
-
 # --- Publications Section Callback ---
 @app.callback(
     [Output('total-pubs', 'children'),
@@ -342,12 +205,12 @@ def update_publications_section(selected_scientist):
         df = publications_df.copy()
     else:
         df = publications_df[publications_df['Scientist Name'] == selected_scientist]
-    
+
     total_pubs = df['Total Pubs'].sum()
     avg_pubs_year = round(df['Pubs Per Year'].mean(), 2)
-    
+
     if df['% of pubs in Top 10%'].dtype == 'O':
-        pct_values = df['% of pubs in Top 10%'].str.replace('%','').astype(float)
+        pct_values = df['% of pubs in Top 10%'].str.replace('%', '').astype(float)
     else:
         pct_values = df['% of pubs in Top 10%']
     top10_pct = f"{round(pct_values.mean(), 1)}%"
@@ -364,7 +227,12 @@ def update_publications_section(selected_scientist):
         'cited-clin-chart': px.bar(df, x='Scientist Name', y='Cited by Clin', title='Cited by Clinical Articles')
     }
 
-    return total_pubs, avg_pubs_year, top10_pct, avg_rcr, charts['top10-chart'], charts['pubs-per-year-chart'], charts['total-pubs-chart'], charts['weighted-rcr-chart'], charts['mean-rcr-chart'], charts['avg-apt-chart'], charts['cited-clin-chart']
+    return (total_pubs, avg_pubs_year, top10_pct, avg_rcr,
+            charts['top10-chart'], charts['pubs-per-year-chart'],
+            charts['total-pubs-chart'], charts['weighted-rcr-chart'],
+            charts['mean-rcr-chart'], charts['avg-apt-chart'],
+            charts['cited-clin-chart'])
+
 # --- Run App ---
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=10000)
