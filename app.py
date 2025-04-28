@@ -47,13 +47,6 @@ sidebar = dbc.Nav(
 content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
 
 # Tooltips for KPI Cards
-tooltips = html.Div([
-    dbc.Tooltip("Total number of publications by the selected scientist(s).", target="tooltip-total-pubs", placement="top"),
-    dbc.Tooltip("Average number of publications per year.", target="tooltip-avg-pubs-year", placement="top"),
-    dbc.Tooltip("Percentage of publications ranked in the top 10% by citations.", target="tooltip-top10", placement="top"),
-    dbc.Tooltip("Average weighted Relative Citation Ratio, indicating citation impact.", target="tooltip-avg-rcr", placement="top"),
-])
-
 app.layout = html.Div([
     dcc.Location(id="url"),
     header,
@@ -83,59 +76,65 @@ def display_page(pathname):
                         [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
                 value='All',
                 style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
-            ),
-            dbc.Row([
-    dbc.Col(dbc.Card(dbc.CardBody([
-        html.H5(["Total Publications ",
-                 html.I(className="bi bi-info-circle-fill", id="tooltip-total-pubs", style={"cursor": "pointer"})]),
-        html.H3(id='total-pubs')
-    ]), color="primary", inverse=True)),
-    
-    dbc.Col(dbc.Card(dbc.CardBody([
-        html.H5(["Avg Pubs Per Year ",
-                 html.I(className="bi bi-info-circle-fill", id="tooltip-avg-pubs-year", style={"cursor": "pointer"})]),
-        html.H3(id='avg-pubs-year')
-    ]), color="info", inverse=True)),
-    
-    dbc.Col(dbc.Card(dbc.CardBody([
-        html.H5(["% Pubs in Top 10% ",
-                 html.I(className="bi bi-info-circle-fill", id="tooltip-top10", style={"cursor": "pointer"})]),
-        html.H3(id='top10-pubs')
-    ]), color="success", inverse=True)),
-    
-    dbc.Col(dbc.Card(dbc.CardBody([
-        html.H5(["Avg Weighted RCR ",
-                 html.I(className="bi bi-info-circle-fill", id="tooltip-avg-rcr", style={"cursor": "pointer"})]),
-        html.H3(id='avg-rcr')
-    ]), color="warning", inverse=True)),
-], className="mb-4"),
+            ]),
+        dbc.Row([
+            dbc.Col(dbc.Card(dbc.CardBody([
+                html.H5(["Total Publications ",
+                         html.I(className="bi bi-info-circle-fill", id="tooltip-total-pubs", style={"cursor": "pointer"})]),
+                html.H3(id='total-pubs')
+            ]), color="primary", inverse=True)),
 
-    dcc.Graph(id='top10-chart'),
+            dbc.Col(dbc.Card(dbc.CardBody([
+                html.H5(["Avg Pubs Per Year ",
+                         html.I(className="bi bi-info-circle-fill", id="tooltip-avg-pubs-year", style={"cursor": "pointer"})]),
+                html.H3(id='avg-pubs-year')
+            ]), color="info", inverse=True)),
 
-    dbc.Accordion([
-        dbc.AccordionItem([
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
-                dbc.Col(dcc.Graph(id='total-pubs-chart')),
-            ])
-        ], title="Productivity Metrics"),
+            dbc.Col(dbc.Card(dbc.CardBody([
+                html.H5(["% Pubs in Top 10% ",
+                         html.I(className="bi bi-info-circle-fill", id="tooltip-top10", style={"cursor": "pointer"})]),
+                html.H3(id='top10-pubs')
+            ]), color="success", inverse=True)),
 
-        dbc.AccordionItem([
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
-                dbc.Col(dcc.Graph(id='mean-rcr-chart')),
-            ])
-        ], title="Citation Impact"),
+            dbc.Col(dbc.Card(dbc.CardBody([
+                html.H5(["Avg Weighted RCR ",
+                         html.I(className="bi bi-info-circle-fill", id="tooltip-avg-rcr", style={"cursor": "pointer"})]),
+                html.H3(id='avg-rcr')
+            ]), color="warning", inverse=True)),
+        ], className="mb-4"),
 
-        dbc.AccordionItem([
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='avg-apt-chart')),
-                dbc.Col(dcc.Graph(id='cited-clin-chart')),
-            ])
-        ], title="Translational Reach"),
-    ], start_collapsed=True)
-])
+        dcc.Graph(id='top10-chart'),
 
+        dbc.Accordion([
+            dbc.AccordionItem([
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='pubs-per-year-chart')),
+                    dbc.Col(dcc.Graph(id='total-pubs-chart')),
+                ])
+            ], title="Productivity Metrics"),
+
+            dbc.AccordionItem([
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='weighted-rcr-chart')),
+                    dbc.Col(dcc.Graph(id='mean-rcr-chart')),
+                ])
+            ], title="Citation Impact"),
+
+            dbc.AccordionItem([
+                dbc.Row([
+                    dbc.Col(dcc.Graph(id='avg-apt-chart')),
+                    dbc.Col(dcc.Graph(id='cited-clin-chart')),
+                ])
+            ], title="Translational Reach"),
+        ], start_collapsed=True),
+
+        # Tooltips must be INSIDE the Container!
+        dbc.Tooltip("Total number of publications by the selected scientist(s).", target="tooltip-total-pubs", placement="top"),
+        dbc.Tooltip("Average number of publications per year.", target="tooltip-avg-pubs-year", placement="top"),
+        dbc.Tooltip("Percentage of publications ranked in the top 10% by citations.", target="tooltip-top10", placement="top"),
+        dbc.Tooltip("Average weighted Relative Citation Ratio, indicating citation impact.", target="tooltip-avg-rcr", placement="top"),
+    ])
+  
 # Tooltips
 elif pathname == '/impact':
         return dbc.Container([html.H2("Publication Impact"), html.P("Impact metrics and visuals coming soon...")])
