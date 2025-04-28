@@ -76,7 +76,7 @@ def display_page(pathname):
                         [{'label': sci, 'value': sci} for sci in publications_df['Scientist Name']],
                 value='All',
                 style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
-            ]),
+            ),
         dbc.Row([
             dbc.Col(dbc.Card(dbc.CardBody([
                 html.H5(["Total Publications ",
