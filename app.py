@@ -262,8 +262,8 @@ def update_publications_section(selected_scientist):
             charts['cited-clin-chart'])
 # --- Publications Impact Section Callback ---
 @app.callback(
-    [Output('avg-impact-factor', 'children'),
-     Output('top5-papers-table', 'children')],
+    [Output('avg-impact', 'children'),
+     Output('impact-table', 'children')],
     [Input('impact-scientist-dropdown', 'value')]
 )
 def update_impact_section(selected_scientist):
@@ -285,6 +285,19 @@ def update_impact_section(selected_scientist):
     )
 
     return avg_if, table
+# --- Publications Section Callback ---
+@app.callback(...)
+def update_publications_section(selected_scientist):
+    ...
+
+# --- Publications Impact Section Callback ---
+@app.callback(...)
+def update_impact_section(selected_scientist):
+    ...
+
+# --- Run App ---
+if __name__ == '__main__':
+    app.run(...)
 
 # --- Run App ---
 if __name__ == '__main__':
