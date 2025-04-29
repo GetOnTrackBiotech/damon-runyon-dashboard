@@ -260,9 +260,11 @@ def update_publications_section(selected_scientist):
             charts['total-pubs-chart'], charts['weighted-rcr-chart'],
             charts['mean-rcr-chart'], charts['avg-apt-chart'],
             charts['cited-clin-chart'])
+
 # --- Publications Impact Section Callback ---
 @app.callback(
     [Output('avg-impact', 'children'),
+     Output('avg-impact-chart', 'figure'),
      Output('impact-table', 'children')],
     [Input('impact-scientist-dropdown', 'value')]
 )
@@ -270,19 +272,28 @@ def update_impact_section(selected_scientist):
     if selected_scientist == 'All':
         df = publications_impact_df.copy()
     else:
-        df = publications_impact_df[publications_impact_df['Scientist Name'] == selected_scientist]
+        df = publications_df[publications_df['Scientist Name'] == selected_scientist]
 
-    # Average Impact Factor across top 5
+    # Avg impact factor
     avg_if = round(df['Impact Factor'].mean(), 2)
 
-    # Create simple table of top 5 papers
+    # Impact factor bar chart
+    fig = px.bar(
+        df,
+        x='Journal',
+        y='Impact Factor',
+        color='Scientist',
+        title='Impact Factor of Top Publications',
+        hover_data=['Title']
+    )
+
+    # Simple table of top 5 publications
     table = dbc.Table.from_dataframe(
         df[['Title', 'Journal', 'Impact Factor']],
-        striped=True,
-        bordered=True,
-        hover=True,
-        responsive=True
+        striped=True, bordered=True, hover=True, responsive=True
     )
+
+    return f"{avg_if}", fig, table
 
 # --- Run App ---
 if __name__ == '__main__':
