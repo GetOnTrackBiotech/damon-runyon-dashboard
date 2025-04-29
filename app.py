@@ -136,13 +136,13 @@ def display_page(pathname):
 # --- Page Routing Callback (continued) ---
     elif pathname == '/impact':
         return dbc.Container([
-            html.H2("Publication Impact"),
+            html.H2("Publications Impact"),
             html.P("Analyzing the impact factors of top publications post-Damon Runyon award."),
 
             dcc.Dropdown(
                 id='impact-scientist-dropdown',
                 options=[{'label': 'All Scientists', 'value': 'All'}] + 
-                        [{'label': sci, 'value': sci} for sci in publication_impact_df['Scientist'].unique()],
+                        [{'label': sci, 'value': sci} for sci in publications_impact_df['Scientist'].unique()],
                 value='All',
                 style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
             ),
@@ -232,7 +232,7 @@ def update_publications_section(selected_scientist):
     if selected_scientist == 'All':
         df = publications_df.copy()
     else:
-        df = publications_df[publications_df['Scientist Name'] == selected_scientist]
+        df = publications_impact_df[publications_impact_df['Scientist Name'] == selected_scientist]
 
     total_pubs = df['Total Pubs'].sum()
     avg_pubs_year = round(df['Pubs Per Year'].mean(), 2)
@@ -283,21 +283,6 @@ def update_impact_section(selected_scientist):
         hover=True,
         responsive=True
     )
-
-    return avg_if, table
-# --- Publications Section Callback ---
-@app.callback(...)
-def update_publications_section(selected_scientist):
-    ...
-
-# --- Publications Impact Section Callback ---
-@app.callback(...)
-def update_impact_section(selected_scientist):
-    ...
-
-# --- Run App ---
-if __name__ == '__main__':
-    app.run(...)
 
 # --- Run App ---
 if __name__ == '__main__':
