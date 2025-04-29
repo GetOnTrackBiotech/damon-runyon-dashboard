@@ -16,6 +16,7 @@ excel_file = 'assets/damon_runyon_data_CLEAN.xlsx'
 funding_df = pd.read_excel(excel_file, sheet_name='NIH & Grant Funding Impact')
 awards_df = pd.read_excel(excel_file, sheet_name='Awards & Recognitions')
 publications_df = pd.read_excel(excel_file, sheet_name='Publications (ICite #)')
+publications_impact_df = pd.read_excel(excel_file, sheet_name='Publications Impact')
 
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
@@ -132,12 +133,39 @@ def display_page(pathname):
             dbc.Tooltip("Percentage of publications ranked in the top 10% by citations.", target="tooltip-top10", placement="top"),
             dbc.Tooltip("Average weighted Relative Citation Ratio, indicating citation impact.", target="tooltip-avg-rcr", placement="top"),
         ])
-
+# --- Page Routing Callback (continued) ---
     elif pathname == '/impact':
         return dbc.Container([
             html.H2("Publication Impact"),
-            html.P("Impact metrics and visuals coming soon...")
-        ])
+            html.P("Analyzing the impact factors of top publications post-Damon Runyon award."),
+
+            dcc.Dropdown(
+                id='impact-scientist-dropdown',
+                options=[{'label': 'All Scientists', 'value': 'All'}] + 
+                        [{'label': sci, 'value': sci} for sci in publication_impact_df['Scientist'].unique()],
+                value='All',
+                style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
+            ),
+
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5(["Avg Impact Factor ",
+                             html.I(className="bi bi-info-circle-fill", id="tooltip-avg-impact", style={"cursor": "pointer"})]),
+                    html.H3(id='avg-impact')
+                ]), color="primary", inverse=True)),
+            ], className="mb-4"),
+
+            dcc.Graph(id='avg-impact-chart'),
+
+            dbc.Accordion([
+                dbc.AccordionItem([
+                    html.Div(id='impact-table')
+                ], title="View Detailed Top Publications"),
+            ], start_collapsed=True),
+
+        # Tooltips
+        dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
+    ])
 
     elif pathname == '/companies':
         return dbc.Container([
@@ -232,6 +260,31 @@ def update_publications_section(selected_scientist):
             charts['total-pubs-chart'], charts['weighted-rcr-chart'],
             charts['mean-rcr-chart'], charts['avg-apt-chart'],
             charts['cited-clin-chart'])
+# --- Publications Impact Section Callback ---
+@app.callback(
+    [Output('avg-impact-factor', 'children'),
+     Output('top5-papers-table', 'children')],
+    [Input('impact-scientist-dropdown', 'value')]
+)
+def update_impact_section(selected_scientist):
+    if selected_scientist == 'All':
+        df = publications_impact_df.copy()
+    else:
+        df = publications_impact_df[publications_impact_df['Scientist Name'] == selected_scientist]
+
+    # Average Impact Factor across top 5
+    avg_if = round(df['Impact Factor'].mean(), 2)
+
+    # Create simple table of top 5 papers
+    table = dbc.Table.from_dataframe(
+        df[['Title', 'Journal', 'Impact Factor']],
+        striped=True,
+        bordered=True,
+        hover=True,
+        responsive=True
+    )
+
+    return avg_if, table
 
 # --- Run App ---
 if __name__ == '__main__':
