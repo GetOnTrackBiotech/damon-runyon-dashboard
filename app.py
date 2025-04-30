@@ -192,11 +192,10 @@ def display_page(pathname):
         # Tooltips
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
-    
+
     elif pathname == '/companies':
         companies_df = pd.read_excel(excel_file, sheet_name='Companies')
         summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
-
         summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
         return dbc.Container([
@@ -204,29 +203,34 @@ def display_page(pathname):
             html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
 
             dbc.Row([
-    dbc.Col(dcc.Dropdown(
-        id="companies-scientist-dropdown",
-        options=[{"label": "All Scientists", "value": "All"}] +
-                [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
-        value="All",
-        placeholder="Select a Scientist",
-        style={'margin-bottom': '10px'}
-    ), width=6),
+                dbc.Col(dcc.Dropdown(
+                    id="companies-scientist-dropdown",
+                    options=[{"label": "All Scientists", "value": "All"}] +
+                            [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+                    value="All",
+                    placeholder="Select a Scientist",
+                    style={'margin-bottom': '10px'}
+                ), width=6),
 
-    dbc.Col(dcc.Dropdown(
-        id="color-by-dropdown",
-        options=[
-            {"label": "Company", "value": "Company"},
-            {"label": "Scientist", "value": "Scientist"},
-            {"label": "Role", "value": "Role"},
-            {"label": "Focus Area", "value": "Focus Area"}
-        ],
-        value="Company",
-        placeholder="Color By...",
-        style={'margin-bottom': '10px'}
-    ), width=6),
-    ], className="mb-4")
-])
+                dbc.Col(dcc.Dropdown(
+                    id="color-by-dropdown",
+                    options=[
+                        {"label": "Company", "value": "Company"},
+                        {"label": "Scientist", "value": "Scientist"},
+                        {"label": "Role", "value": "Role"},
+                        {"label": "Focus Area", "value": "Focus Area"}
+                    ],
+                    value="Company",
+                    placeholder="Color By...",
+                    style={'margin-bottom': '10px'}
+                ), width=6),
+            ], className="mb-4"),
+
+            html.Div(id="companies-kpi-output"),
+            html.Div(id="companies-gantt-output"),
+            html.Div(id="companies-table-output")
+        ])
+
     elif pathname == '/entrepreneurship':
         return dbc.Container([
             html.H2("Entrepreneurship"),
@@ -474,7 +478,7 @@ def update_companies_section(selected_sci, color_by):
             kpi = html.Div("No data available.")
         else:
             row = filtered_summary.iloc[0]
-           kpi = dbc.Row([
+            kpi = dbc.Row([
                dbc.Col(dbc.Card(
                    dbc.CardBody([
                        html.H6(html.Span("Companies Founded", title="Startups or co-founded companies"), className="card-title"),
