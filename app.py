@@ -225,8 +225,8 @@ def display_page(pathname):
         placeholder="Color By...",
         style={'margin-bottom': '10px'}
     ), width=6),
-], className="mb-4")
-
+    ], className="mb-4")
+])
     elif pathname == '/entrepreneurship':
         return dbc.Container([
             html.H2("Entrepreneurship"),
