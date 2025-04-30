@@ -334,7 +334,8 @@ def update_impact_section(selected_scientist, if_threshold):
     most_cited_count = int(most_cited_row['Total Citations'])
 
     # Bar Chart: Top 10 by Impact Factor
-    top10_df = df.sort_values(by='Impact Factor', ascending=False).head(10)
+    top10_df = df.sort_values(by='Impact Factor', ascending=False).head(10).copy()
+    top10_df['Title'] = top10_df['Title'].apply(lambda x: '\n'.join([x[i:i+50] for i in range(0, len(x), 50)]))
     bar_fig = px.bar(
         top10_df,
         x='Impact Factor',
