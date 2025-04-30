@@ -246,6 +246,20 @@ def display_page(pathname):
             title="Awards & Recognitions Timeline"
         )
         timeline_fig.update_layout(height=500)
+        
+        # Bar Chart: Total Awards per Scientist
+        award_counts = awards_df['Scientist Name'].value_counts().reset_index()
+        award_counts.columns = ['Scientist Name', 'Award Count']
+
+        bar_fig = px.bar(
+            award_counts,
+            x='Award Count',
+            y='Scientist Name',
+            orientation='h',
+            title='Total Awards per Scientist',
+            text='Award Count'
+        )
+        bar_fig.update_layout(height=500, margin=dict(l=100, r=20, t=60, b=40))
 
         return dbc.Container([
             html.H2("Awards & Recognitions"),
@@ -266,7 +280,9 @@ def display_page(pathname):
 
             dcc.Dropdown(
                 id='awards-scientist-scatter-filter',
-                options=[{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
+                options=[{'label': 'All Scientists', 'value': 'all'}] + 
+                        [{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
+                value='all',  # default to showing everything
                 placeholder="Filter timeline by Scientist",
                 style={'width': '50%', 'margin-bottom': '20px'}
             ),
@@ -274,7 +290,7 @@ def display_page(pathname):
             dcc.Graph(id='awards-scatter', figure=timeline_fig),
 
             html.Br(),
-
+            dcc.Graph(figure=bar_fig),
             dcc.Dropdown(
                 id='awards-scientist-filter',
                 options=[{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
@@ -614,10 +630,11 @@ def update_companies_section(selected_sci, color_by):
     Input('awards-scientist-scatter-filter', 'value')
 )
 def update_awards_scatter(scientist):
-    filtered_df = awards_df
-    if scientist:
+    if scientist and scientist != 'all':
         filtered_df = awards_df[awards_df['Scientist Name'] == scientist]
-    
+    else:
+        filtered_df = awards_df
+
     fig = px.scatter(
         filtered_df,
         x="Year",
@@ -628,6 +645,7 @@ def update_awards_scatter(scientist):
     )
     fig.update_layout(height=500)
     return fig
+
 
 # --- Run App ---
 if __name__ == '__main__':
