@@ -286,7 +286,6 @@ def display_page(pathname):
                 style_cell={'textAlign': 'left'}
             )
         ])
-)
 
     elif pathname == '/drilldown':
         return dbc.Container([
