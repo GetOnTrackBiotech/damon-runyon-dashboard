@@ -332,8 +332,7 @@ def update_impact_section(selected_scientist, if_threshold):
     most_cited_row = df.loc[df['Total Citations'].idxmax()]
     most_cited_count = int(most_cited_row['Total Citations'])
 
-    # Bar Chart: Top 10 by Impact Factor
-    # Top 10 Publications by Impact Factor with Rank Labels
+    # Bar Chart: Top 10 by Impact Factor — ranked and labeled
     top10_df = df.sort_values(by='Impact Factor', ascending=False).head(10).copy()
     rank_emojis = ['🥇 1', '🥈 2', '🥉 3'] + [f"{i+1}" for i in range(3, 10)]
     top10_df['Rank Label'] = rank_emojis
@@ -348,16 +347,26 @@ def update_impact_section(selected_scientist, if_threshold):
         hover_data=['Title', 'Journal', 'Total Citations']
     )
 
-    # Adjust the layout AFTER the figure is created
-    bar_fig.update_yaxes(tickangle=0)
     bar_fig.update_layout(
         height=600,
-        margin=dict(l=300, r=20, t=60, b=40),
+        width=1000,
+        margin=dict(l=300, r=20, t=60, b=80),
         yaxis=dict(
+            title="Rank (1 = Highest Impact Factor)",
             tickfont=dict(size=11),
             automargin=True
         )
     )
+
+    bar_fig.add_annotation(
+        text="Ranked by Impact Factor (1 = highest)",
+        xref="paper", yref="paper",
+        x=1, y=-0.2,
+        showarrow=False,
+        font=dict(size=12),
+        align="right"
+    )
+
     # Scatter Plot: Impact Factor vs Citations
     scatter_fig = px.scatter(
         df,
