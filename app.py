@@ -429,8 +429,8 @@ def update_impact_section(selected_scientist, if_threshold):
     )
 
     bar_fig.update_layout(
-        height=450,
-        width=100,
+        height=550,
+        width=1100,
         margin=dict(l=150, r=20, t=60, b=40),
         yaxis=dict(
             title="Rank (1 = Highest Impact Factor)",
@@ -625,7 +625,10 @@ def update_awards_scatter(scientist):
         hover_data=["Awards", "Organization"],
         title="Awards & Recognitions Timeline"
     )
-    fig.update_layout(height=500)
+    fig.update_layout(
+        height=500,
+        showlegend=False
+    )
     return fig
 @app.callback(
     Output('awards-table', 'data'),
