@@ -206,12 +206,12 @@ def display_page(pathname):
         return dbc.Container([
             html.H2("Companies & Career Timeline"),
             html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
-
+            
             dcc.Dropdown(
                 id="companies-scientist-dropdown",
-                options=[{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
-                placeholder="Select a scientist",
-                value=sorted(companies_df['Scientist'].unique())[0],
+                options=[{"label": "All Scientists", "value": "All"}] +
+                        [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+                value="All",
                 style={'width': '50%', 'margin-bottom': '20px'}
             ),
 
@@ -434,6 +434,7 @@ def update_impact_section(selected_scientist, if_threshold):
 )
     kpi_display = f"Total Pubs: {total_pubs} | Avg IF: {avg_if} | Most Cited: {most_cited_count}"
     return kpi_display, bar_fig, scatter_fig, table
+
 @app.callback(
     [Output('companies-kpi-output', 'children'),
      Output('companies-gantt-output', 'children'),
@@ -443,65 +444,78 @@ def update_impact_section(selected_scientist, if_threshold):
 def update_companies_section(selected_sci):
     companies_df = pd.read_excel(excel_file, sheet_name='Companies')
     summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
+    summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
     # Clean data
     companies_df = companies_df.dropna(subset=["Scientist", "Company", "Start Year", "End Year / Current"])
     companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
-    companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
     companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
+    companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
+    companies_df["Start Year"] = pd.to_datetime(companies_df["Start Year"], format="%Y", errors='coerce')
+    companies_df["End Year"] = pd.to_datetime(companies_df["End Year"], format="%Y", errors='coerce')
+    companies_df = companies_df.dropna(subset=["Start Year", "End Year"])
 
-    summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
+    # Filter
+    if selected_sci == "All":
+        filtered_df = companies_df.copy()
+        filtered_summary = summary_df.copy()
+        kpi = html.Div()  # No KPI cards
+    else:
+        filtered_df = companies_df[companies_df['Scientist'] == selected_sci]
+        filtered_summary = summary_df[summary_df['Scientist'] == selected_sci]
 
-    # KPI cards
-    row = summary_df[summary_df["Scientist"] == selected_sci].iloc[0]
-    kpi = dbc.Row([
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("Companies Founded", className="card-title"),
-            html.H4(f"{row['Companies Founded']}")
-        ])), width=3),
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("Advisory Roles", className="card-title"),
-            html.H4(f"{row['Advisory Roles']}")
-        ])), width=3),
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("IPOs / Acquisitions", className="card-title"),
-            html.H4(f"{row['IPOs / Acquisitions']}")
-        ])), width=3),
-        dbc.Col(dbc.Card(dbc.CardBody([
-            html.H6("FDA-Linked Patents", className="card-title"),
-            html.H4(f"{row['FDA-Approved Patents']}")
-        ])), width=3)
-    ])
+        if filtered_summary.empty:
+            kpi = html.Div("No data available.")
+        else:
+            row = filtered_summary.iloc[0]
+            kpi = dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("Companies Founded", className="card-title"),
+                    html.H4(f"{row['Companies Founded']}"),
+                ]), color="primary", inverse=True), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("Advisory Roles", className="card-title"),
+                    html.H4(f"{row['Advisory Roles']}"),
+                ]), color="info", inverse=True), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("IPOs / Acquisitions", className="card-title"),
+                    html.H4(f"{row['IPOs / Acquisitions']}"),
+                ]), color="success", inverse=True), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("FDA-Linked Patents", className="card-title"),
+                    html.H4(f"{row['FDA-Approved Patents']}"),
+                ]), color="warning", inverse=True), width=3)
+            ])
 
-    # Filter for selected scientist
-    filtered_df = companies_df[companies_df['Scientist'] == selected_sci]
-
-    # Gantt chart with unified styling
+    # Gantt chart
     gantt_fig = px.timeline(
         filtered_df,
         x_start="Start Year",
         x_end="End Year",
-        y="Company",
+        y="Company" if selected_sci != "All" else "Scientist",
         color="Company",
         hover_data=["Role", "Focus Area"],
-        title=f"Career Timeline for {selected_sci}"
+        title=f"Career Timeline for {'All Scientists' if selected_sci == 'All' else selected_sci}"
     )
-
     gantt_fig.update_yaxes(autorange="reversed")
     gantt_fig.update_layout(
         height=500,
         margin=dict(l=20, r=20, t=40, b=40),
-        title_font=dict(size=18),
         xaxis_title="Year",
         yaxis_title=None
     )
-
     gantt = dcc.Graph(figure=gantt_fig)
 
-    # DataTable
+    # Table
+    if selected_sci == "All":
+        table_data = summary_df[["Scientist", "Current Academic Position", "IPOs / Acquisitions",
+                                 "Clinical Trials Linked", "FDA-Approved Patents"]]
+    else:
+        table_data = filtered_df[["Company", "Role", "Focus Area", "Start Year", "End Year"]]
+
     table = dash_table.DataTable(
-        columns=[{"name": col, "id": col} for col in ["Company", "Role", "Focus Area", "Start Year", "End Year"]],
-        data=filtered_df.to_dict('records'),
+        columns=[{"name": col, "id": col} for col in table_data.columns],
+        data=table_data.to_dict("records"),
         style_table={'overflowX': 'auto'},
         style_cell={'textAlign': 'left', 'padding': '5px'},
         style_header={
