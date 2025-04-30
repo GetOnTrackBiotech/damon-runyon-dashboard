@@ -193,7 +193,7 @@ def display_page(pathname):
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
     
-      elif pathname == '/companies':
+    elif pathname == '/companies':
         companies_df = pd.read_excel(excel_file, sheet_name='Companies')
         summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
 
