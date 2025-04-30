@@ -192,40 +192,43 @@ def display_page(pathname):
         # Tooltips
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
-      
-    elif pathname == '/companies':
-        companies_df = pd.read_excel(excel_file, sheet_name='Companies')
-        summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
-        
-        companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
-        companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
-        companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
+    
+  elif pathname == '/companies':
+    companies_df = pd.read_excel(excel_file, sheet_name='Companies')
+    summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
 
-        summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
+    summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
-        return dbc.Container([
-            html.H2("Companies & Career Timeline"),
-            html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
-            
-            dcc.Dropdown(
-                 id="color-by-dropdown",
-                 options=[
-                    {"label": "Company", "value": "Company"},
-                    {"label": "Scientist", "value": "Scientist"},
-                    {"label": "Role", "value": "Role"},
-                    {"label": "Focus Area", "value": "Focus Area"}
-                ],
-                value="Company",  # default value
-                clearable=False,
-                style={'width': '50%', 'margin-bottom': '20px'}
-            ),
+    return dbc.Container([
+        html.H2("Companies & Career Timeline"),
+        html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
 
-            html.Div(id='companies-kpi-output'),
-            html.Hr(),
-            html.Div(id='companies-gantt-output'),
-            html.Hr(),
-            html.Div(id='companies-table-output'),
-        ])
+        dcc.Dropdown(
+            id="companies-scientist-dropdown",
+            options=[{"label": "All Scientists", "value": "All"}] +
+                    [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+            value="All",
+            style={'width': '50%', 'margin-bottom': '20px'}
+        ),
+
+        dcc.Dropdown(
+            id="color-by-dropdown",
+            options=[
+                {"label": "Company", "value": "Company"},
+                {"label": "Scientist", "value": "Scientist"},
+                {"label": "Role", "value": "Role"},
+                {"label": "Focus Area", "value": "Focus Area"}
+            ],
+            value="Company",
+            style={'width': '50%', 'margin-bottom': '30px'}
+        ),
+
+        html.Div(id='companies-kpi-output'),
+        html.Hr(),
+        html.Div(id='companies-gantt-output'),
+        html.Hr(),
+        html.Div(id='companies-table-output'),
+    ])
 
     elif pathname == '/entrepreneurship':
         return dbc.Container([
@@ -452,7 +455,7 @@ def update_companies_section(selected_sci, color_by):
     summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
     summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
-    # Clean data
+    # Clean & convert data
     companies_df = companies_df.dropna(subset=["Scientist", "Company", "Start Year", "End Year / Current"])
     companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
     companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
@@ -493,7 +496,7 @@ def update_companies_section(selected_sci, color_by):
                 ]), color="warning", inverse=True), width=3)
             ])
 
-  # Gantt chart
+    # Gantt chart
     gantt_fig = px.timeline(
         filtered_df,
         x_start="Start Year",
@@ -511,7 +514,6 @@ def update_companies_section(selected_sci, color_by):
         yaxis_title=None
     )
     gantt = dcc.Graph(figure=gantt_fig)
-
 
     # Table
     if selected_sci == "All":
