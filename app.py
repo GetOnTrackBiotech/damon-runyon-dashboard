@@ -37,7 +37,6 @@ sidebar = dbc.Nav(
         dbc.NavLink("Publications", href="/publications", active="exact"),
         dbc.NavLink("Publication Impact", href="/impact", active="exact"),
         dbc.NavLink("Companies & Career Timeline", href="/companies", active="exact"),
-        dbc.NavLink("Entrepreneurship", href="/entrepreneurship", active="exact"),
         dbc.NavLink("Awards & Recognitions", href="/awards", active="exact"),
         dbc.NavLink("Scientist Drill-Down", href="/drilldown", active="exact"),
     ],
@@ -231,17 +230,63 @@ def display_page(pathname):
             html.Div(id="companies-table-output")
         ])
 
-    elif pathname == '/entrepreneurship':
-        return dbc.Container([
-            html.H2("Entrepreneurship"),
-            html.P("Startups, IPOs, patents, and more coming soon...")
-        ])
-
     elif pathname == '/awards':
+        # KPI Metrics
+        total_awards = len(awards_df)
+        most_awarded_scientist = awards_df['Scientist Name'].value_counts().idxmax()
+        most_common_org = awards_df['Organization'].value_counts().idxmax()
+
+        # Timeline Chart
+        timeline_fig = px.scatter(
+            awards_df,
+            x="Year",
+            y="Scientist Name",
+            color="Organization",
+            hover_data=["Awards", "Organization"],
+            title="Awards & Recognitions Timeline"
+        )
+        timeline_fig.update_layout(height=500)
+
         return dbc.Container([
             html.H2("Awards & Recognitions"),
-            html.P("Awards data and highlights coming soon...")
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Total Awards", className="card-title"),
+                    html.P(f"{total_awards}", className="card-text")
+                ]))),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Most Awarded Scientist", className="card-title"),
+                    html.P(most_awarded_scientist, className="card-text")
+                ]))),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H5("Top Organization", className="card-title"),
+                    html.P(most_common_org, className="card-text")
+                ]))),
+            ], className="mb-4"),
+
+            dcc.Graph(figure=timeline_fig),
+
+            html.Br(),
+
+            dcc.Dropdown(
+                id='awards-scientist-filter',
+                options=[{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
+                placeholder="Filter by Scientist",
+                style={'width': '50%', 'margin-bottom': '20px'}
+            ),
+
+            dash_table.DataTable(
+                id='awards-table',
+                columns=[{"name": i, "id": i} for i in awards_df.columns],
+                data=awards_df.to_dict('records'),
+                page_size=10,
+                style_table={'overflowX': 'auto'},
+                sort_action="native",
+                filter_action="native",
+                style_cell={'textAlign': 'left'}
+            )
         ])
+)
 
     elif pathname == '/drilldown':
         return dbc.Container([
@@ -557,6 +602,15 @@ def update_companies_section(selected_sci, color_by):
     )
 
     return kpi, gantt, table
+
+@app.callback(
+    Output('awards-table', 'data'),
+    Input('awards-scientist-filter', 'value')
+)
+def update_awards_table(scientist):
+    if scientist:
+        return awards_df[awards_df['Scientist Name'] == scientist].to_dict('records')
+    return awards_df.to_dict('records')
 
 # --- Run App ---
 if __name__ == '__main__':
