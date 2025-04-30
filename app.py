@@ -267,36 +267,30 @@ def display_page(pathname):
                 dbc.Col(dbc.Card(dbc.CardBody([
                     html.H5("Total Awards", className="card-title"),
                     html.P(f"{total_awards}", className="card-text")
-                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none"})),
+                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none", "height": "120px"})),
                 dbc.Col(dbc.Card(dbc.CardBody([
                     html.H5("Most Awarded Scientist", className="card-title"),
                     html.P(most_awarded_scientist, className="card-text")
-                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none"})),
+                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none", "height": "120px"})),
                 dbc.Col(dbc.Card(dbc.CardBody([
                     html.H5("Top Organization", className="card-title"),
                     html.P(most_common_org, className="card-text")
-                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none"})),
+                ]), style={"background-color": "#4c00b0", "color": "white", "border": "none", "height": "120px"})),
             ], className="mb-4"),
 
             dcc.Dropdown(
-                id='awards-scientist-scatter-filter',
+                id='awards-scientist-dropdown',
                 options=[{'label': 'All Scientists', 'value': 'all'}] + 
                         [{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
-                value='all',  # default to showing everything
-                placeholder="Filter timeline by Scientist",
-                style={'width': '50%', 'margin-bottom': '20px'}
-            ),
-
-            dcc.Graph(id='awards-scatter', figure=timeline_fig),
-
-            html.Br(),
-            dcc.Graph(figure=bar_fig),
-            dcc.Dropdown(
-                id='awards-scientist-filter',
-                options=[{'label': s, 'value': s} for s in sorted(awards_df['Scientist Name'].unique())],
+                value='all',
                 placeholder="Filter by Scientist",
                 style={'width': '50%', 'margin-bottom': '20px'}
             ),
+            
+            dcc.Graph(figure=bar_fig),
+            html.Br(),
+            dcc.Graph(id='awards-scatter', figure=timeline_fig),
+            html.Br(),
 
             dash_table.DataTable(
                 id='awards-table',
@@ -627,7 +621,7 @@ def update_companies_section(selected_sci, color_by):
 
 @app.callback(
     Output('awards-scatter', 'figure'),
-    Input('awards-scientist-scatter-filter', 'value')
+    Input('awards-scientist-dropdown', 'value')
 )
 def update_awards_scatter(scientist):
     if scientist and scientist != 'all':
@@ -644,8 +638,15 @@ def update_awards_scatter(scientist):
         title="Awards & Recognitions Timeline"
     )
     fig.update_layout(height=500)
+@app.callback(
+    Output('awards-table', 'data'),
+    Input('awards-scientist-dropdown', 'value')
+)
+def update_awards_table(scientist):
+    if scientist and scientist != 'all':
+        return awards_df[awards_df['Scientist Name'] == scientist].to_dict('records')
+    return awards_df.to_dict('records')
     return fig
-
 
 # --- Run App ---
 if __name__ == '__main__':
