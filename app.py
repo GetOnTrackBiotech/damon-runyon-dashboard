@@ -298,20 +298,20 @@ def update_impact_section(selected_scientist, if_threshold):
         df = publications_impact_df.dropna(subset=["Scientist", "Impact Factor", "Total Citations"])
     else:
         df = publications_impact_df[(publications_impact_df['Scientist'] == selected_scientist)]
-        
-    # Filter by IF threshold
-        df = df[df['Impact Factor'] >= if_threshold]
 
-        # Add Badge column
-        def get_badge(row):
-            badges = []
-            if row['Impact Factor'] > 25:
-                badges.append('🔥 High IF')
-            if row['Total Citations'] > 500:
-                badges.append('📈 Highly Cited')
-            return " | ".join(badges)
+    # Apply the Impact Factor threshold to ALL filtered data
+    df = df[df['Impact Factor'] >= if_threshold]
 
-        df['Impact Badge'] = df.apply(get_badge, axis=1)
+    # Add the Impact Badge column to ALL data
+    def get_badge(row):
+        badges = []
+        if row['Impact Factor'] > 25:
+            badges.append('🔥 High IF')
+        if row['Total Citations'] > 500:
+            badges.append('📈 Highly Cited')
+        return " | ".join(badges)
+
+    df['Impact Badge'] = df.apply(get_badge, axis=1)
 
     # KPI Metrics
     total_pubs = len(df)
