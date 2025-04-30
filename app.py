@@ -330,21 +330,24 @@ def update_impact_section(selected_scientist, if_threshold):
     total_pubs = len(df)
     avg_if = round(df['Impact Factor'].mean(), 2)
     most_cited_row = df.loc[df['Total Citations'].idxmax()]
-    most_cited_title = most_cited_row['Title']
     most_cited_count = int(most_cited_row['Total Citations'])
 
     # Bar Chart: Top 10 by Impact Factor
+    # Top 10 Publications by Impact Factor with Rank Labels
     top10_df = df.sort_values(by='Impact Factor', ascending=False).head(10).copy()
-    top10_df['Title'] = top10_df['Title'].apply(lambda x: '\n'.join([x[i:i+50] for i in range(0, len(x), 50)]))
+    rank_emojis = ['🥇 1', '🥈 2', '🥉 3'] + [f"{i+1}" for i in range(3, 10)]
+    top10_df['Rank Label'] = rank_emojis
+
     bar_fig = px.bar(
         top10_df,
         x='Impact Factor',
-        y='Title',
+        y='Rank Label',
         color='Scientist',
         orientation='h',
         title='Top 10 Publications by Impact Factor',
-        hover_data=['Journal', 'Total Citations']
+        hover_data=['Title', 'Journal', 'Total Citations']
     )
+
     # Adjust the layout AFTER the figure is created
     bar_fig.update_yaxes(tickangle=0)
     bar_fig.update_layout(
