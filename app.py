@@ -196,9 +196,8 @@ def display_page(pathname):
         elif pathname == '/companies':
                 companies_df = pd.read_excel(excel_file, sheet_name='Companies')
                 summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
-
                 summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
-
+                
                 return dbc.Container([
                         html.H2("Companies & Career Timeline"),
                         html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
