@@ -293,7 +293,7 @@ scientist_colors = {
     [Input('impact-scientist-dropdown', 'value'),
      Input('if-threshold-slider', 'value')]
 )
-def update_impact_section(selected_scientist):
+def update_impact_section(selected_scientist, if_threshold):
     if selected_scientist == 'All':
         df = publications_impact_df.dropna(subset=["Scientist", "Impact Factor", "Total Citations"])
     else:
