@@ -147,6 +147,16 @@ def display_page(pathname):
                 value='All',
                 style={'width': '50%', 'margin-bottom': '20px', 'position': 'sticky', 'top': '70px', 'zIndex': 1000}
             ),
+            
+            html.Div([
+                html.Label("Minimum Impact Factor:", style={"margin-bottom": "5px"}),
+                dcc.Slider(
+                    id='if-threshold-slider',
+                    min=0, max=100, step=1, value=10,
+                    marks={i: str(i) for i in range(0, 101, 10)},
+                    tooltip={"placement": "bottom", "always_visible": False}
+                )
+            ], style={'margin-bottom': '30px'}),
 
             dbc.Row([
                 dbc.Col(dbc.Card(dbc.CardBody([
@@ -157,9 +167,9 @@ def display_page(pathname):
             ], className="mb-4"),
 
             dbc.Row([
-    dbc.Col(dcc.Graph(id='avg-impact-chart'), width=6),
-    dbc.Col(dcc.Graph(id='scatter-impact-chart'), width=6),
-], className="mb-4"),
+                dbc.Col(dcc.Graph(id='avg-impact-chart'), width=6),
+                dbc.Col(dcc.Graph(id='scatter-impact-chart'), width=6),
+            ], className="mb-4"),
 
             dbc.Accordion([
                 dbc.AccordionItem([
@@ -232,7 +242,7 @@ def display_page(pathname):
      Output('cited-clin-chart', 'figure')],
     [Input('pubs-scientist-dropdown', 'value')]
 )
-def update_publications_section(selected_scientist):
+def update_impact_section(selected_scientist, if_threshold):
     if selected_scientist == 'All':
         df = publications_df.copy()
     else:
@@ -268,19 +278,40 @@ def update_publications_section(selected_scientist):
 # --- Publications Impact Section Callback ---
 # Add this inside your `update_impact_section` callback to upgrade the impact section as discussed
 # Replace the current body of update_impact_section with this:
+scientist_colors = {
+    "Omar Abdel-Wahab, MD": "#636EFA",
+    "Catherine J. Wu, MD": "#EF553B",
+    "Nathanael S. Gray, PhD": "#00CC96",
+    "Feng Zhang, PhD": "#AB63FA"
+}
 
 @app.callback(
     [Output('avg-impact', 'children'),
      Output('avg-impact-chart', 'figure'),
      Output('scatter-impact-chart', 'figure'),
      Output('impact-table', 'children')],
-    [Input('impact-scientist-dropdown', 'value')]
+    [Input('impact-scientist-dropdown', 'value'),
+     Input('if-threshold-slider', 'value')]
 )
 def update_impact_section(selected_scientist):
     if selected_scientist == 'All':
         df = publications_impact_df.dropna(subset=["Scientist", "Impact Factor", "Total Citations"])
     else:
         df = publications_impact_df[(publications_impact_df['Scientist'] == selected_scientist)]
+        
+    # Filter by IF threshold
+        df = df[df['Impact Factor'] >= if_threshold]
+
+        # Add Badge column
+        def get_badge(row):
+            badges = []
+            if row['Impact Factor'] > 25:
+                badges.append('🔥 High IF')
+            if row['Total Citations'] > 500:
+                badges.append('📈 Highly Cited')
+            return " | ".join(badges)
+
+        df['Impact Badge'] = df.apply(get_badge, axis=1)
 
     # KPI Metrics
     total_pubs = len(df)
@@ -300,7 +331,12 @@ def update_impact_section(selected_scientist):
         title='Top 10 Publications by Impact Factor',
         hover_data=['Journal', 'Total Citations']
     )
-
+    # Adjust the layout AFTER the figure is created
+    bar_fig.update_layout(
+        height=600,
+        margin=dict(l=250, r=20, t=60, b=40),
+        yaxis=dict(tickfont=dict(size=10))
+    )
     # Scatter Plot: Impact Factor vs Citations
     scatter_fig = px.scatter(
         df,
@@ -313,25 +349,36 @@ def update_impact_section(selected_scientist):
 
     # Interactive Table
     table = dash_table.DataTable(
-        data=df[['Scientist', 'Title', 'Journal', 'Impact Factor', 'Total Citations']].to_dict('records'),
-        columns=[{"name": i, "id": i} for i in ['Scientist', 'Title', 'Journal', 'Impact Factor', 'Total Citations']],
-        style_table={'overflowX': 'auto'},
-        style_cell={
-            'textAlign': 'left',
-            'padding': '5px',
-            'minWidth': '100px',
-            'whiteSpace': 'normal'
-        },
-        style_data_conditional=[
-            {
-                'if': {'column_id': 'Scientist'},
-                'backgroundColor': '#f5f5f5',
-                'fontWeight': 'bold'
-            }
-        ],
-        page_size=10
-    )
-
+    data=df[['Scientist', 'Title', 'Journal', 'Impact Factor', 'Total Citations', 'Impact Badge']].to_dict('records'),
+    columns=[
+        {"name": "Scientist", "id": "Scientist"},
+        {"name": "Title", "id": "Title"},
+        {"name": "Journal", "id": "Journal"},
+        {"name": "Impact Factor", "id": "Impact Factor"},
+        {"name": "Total Citations", "id": "Total Citations"},
+        {"name": "Impact Badge", "id": "Impact Badge"}
+    ],
+    style_table={'overflowX': 'auto'},
+    style_cell={
+        'textAlign': 'left',
+        'padding': '5px',
+        'minWidth': '100px',
+        'whiteSpace': 'normal'
+    },
+    style_header={
+        'backgroundColor': '#4c00b0',
+        'color': 'white',
+        'fontWeight': 'bold'
+    },
+    style_data_conditional=[
+        {
+            'if': {'filter_query': f'{{Scientist}} = "{sci}"'},
+            'backgroundColor': color,
+            'color': 'white'
+        } for sci, color in scientist_colors.items()
+    ],
+    page_size=10
+)
     kpi_display = f"Total Pubs: {total_pubs} | Avg IF: {avg_if} | Most Cited: {most_cited_count}"
     return kpi_display, bar_fig, scatter_fig, table
 
