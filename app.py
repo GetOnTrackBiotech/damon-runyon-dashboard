@@ -38,7 +38,6 @@ sidebar = dbc.Nav(
         dbc.NavLink("Publication Impact", href="/impact", active="exact"),
         dbc.NavLink("Companies & Career Timeline", href="/companies", active="exact"),
         dbc.NavLink("Awards & Recognitions", href="/awards", active="exact"),
-        dbc.NavLink("Scientist Drill-Down", href="/drilldown", active="exact"),
     ],
     vertical=True,
     pills=True,
@@ -302,17 +301,6 @@ def display_page(pathname):
                 filter_action="native",
                 style_cell={'textAlign': 'left'}
             )
-        ])
-
-    elif pathname == '/drilldown':
-        return dbc.Container([
-            html.H2("Scientist Drill-Down"),
-            dcc.Dropdown(
-                options=[{'label': sci, 'value': sci} for sci in scientists],
-                id='scientist-dropdown',
-                placeholder='Select a Scientist'
-            ),
-            html.Div(id='scientist-output')
         ])
 
     else:
@@ -638,6 +626,7 @@ def update_awards_scatter(scientist):
         title="Awards & Recognitions Timeline"
     )
     fig.update_layout(height=500)
+    return fig
 @app.callback(
     Output('awards-table', 'data'),
     Input('awards-scientist-dropdown', 'value')
