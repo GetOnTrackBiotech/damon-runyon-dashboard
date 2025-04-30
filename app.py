@@ -163,12 +163,24 @@ def display_page(pathname):
                     html.H5(["Avg Impact Factor ",
                              html.I(className="bi bi-info-circle-fill", id="tooltip-avg-impact", style={"cursor": "pointer"})]),
                     html.H3(id='avg-impact')
-                ]), color="primary", inverse=True)),
+                ]), color="primary", inverse=True))
             ], className="mb-4"),
 
-            dbc.Row([
-                dbc.Col(dcc.Graph(id='avg-impact-chart'), width=6),
-                dbc.Col(dcc.Graph(id='scatter-impact-chart'), width=6),
+        # Stacked layout with wrapped y-axis titles
+            dbc.Card([
+                dbc.CardBody([
+                    html.H4("Top 10 Publications by Impact Factor", className="card-title"),
+                    dcc.Graph(id='avg-impact-chart')
+                ])
+            ], className="mb-4"),
+
+            html.Hr(),
+
+            dbc.Card([
+                dbc.CardBody([
+                    html.H4("Impact Factor vs. Total Citations", className="card-title"),
+                    dcc.Graph(id='scatter-impact-chart')
+                ])
             ], className="mb-4"),
 
             dbc.Accordion([
@@ -242,7 +254,8 @@ def display_page(pathname):
      Output('cited-clin-chart', 'figure')],
     [Input('pubs-scientist-dropdown', 'value')]
 )
-def update_impact_section(selected_scientist, if_threshold):
+
+def update_publications_section(selected_scientist):
     if selected_scientist == 'All':
         df = publications_df.copy()
     else:
@@ -332,10 +345,14 @@ def update_impact_section(selected_scientist, if_threshold):
         hover_data=['Journal', 'Total Citations']
     )
     # Adjust the layout AFTER the figure is created
+    bar_fig.update_yaxes(tickangle=0)
     bar_fig.update_layout(
         height=600,
-        margin=dict(l=250, r=20, t=60, b=40),
-        yaxis=dict(tickfont=dict(size=10))
+        margin=dict(l=300, r=20, t=60, b=40),
+        yaxis=dict(
+            tickfont=dict(size=11),
+            automargin=True
+        )
     )
     # Scatter Plot: Impact Factor vs Citations
     scatter_fig = px.scatter(
