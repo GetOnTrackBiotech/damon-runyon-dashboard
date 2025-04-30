@@ -193,42 +193,42 @@ def display_page(pathname):
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
     
-  elif pathname == '/companies':
-    companies_df = pd.read_excel(excel_file, sheet_name='Companies')
-    summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
+      elif pathname == '/companies':
+        companies_df = pd.read_excel(excel_file, sheet_name='Companies')
+        summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
 
-    summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
+        summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
-    return dbc.Container([
-        html.H2("Companies & Career Timeline"),
-        html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
+        return dbc.Container([
+            html.H2("Companies & Career Timeline"),
+            html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
 
-        dcc.Dropdown(
-            id="companies-scientist-dropdown",
-            options=[{"label": "All Scientists", "value": "All"}] +
-                    [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
-            value="All",
-            style={'width': '50%', 'margin-bottom': '20px'}
-        ),
+            dcc.Dropdown(
+                id="companies-scientist-dropdown",
+                options=[{"label": "All Scientists", "value": "All"}] +
+                        [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+                value="All",
+                style={'width': '50%', 'margin-bottom': '20px'}
+            ),
 
-        dcc.Dropdown(
-            id="color-by-dropdown",
-            options=[
-                {"label": "Company", "value": "Company"},
-                {"label": "Scientist", "value": "Scientist"},
-                {"label": "Role", "value": "Role"},
-                {"label": "Focus Area", "value": "Focus Area"}
-            ],
-            value="Company",
-            style={'width': '50%', 'margin-bottom': '30px'}
-        ),
+            dcc.Dropdown(
+                id="color-by-dropdown",
+                options=[
+                    {"label": "Company", "value": "Company"},
+                    {"label": "Scientist", "value": "Scientist"},
+                    {"label": "Role", "value": "Role"},
+                    {"label": "Focus Area", "value": "Focus Area"}
+                ],
+                value="Company",
+                style={'width': '50%', 'margin-bottom': '30px'}
+            ),
 
-        html.Div(id='companies-kpi-output'),
-        html.Hr(),
-        html.Div(id='companies-gantt-output'),
-        html.Hr(),
-        html.Div(id='companies-table-output'),
-    ])
+            html.Div(id='companies-kpi-output'),
+            html.Hr(),
+            html.Div(id='companies-gantt-output'),
+            html.Hr(),
+            html.Div(id='companies-table-output'),
+        ])
 
     elif pathname == '/entrepreneurship':
         return dbc.Container([
