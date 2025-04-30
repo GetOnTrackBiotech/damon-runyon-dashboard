@@ -429,9 +429,9 @@ def update_impact_section(selected_scientist, if_threshold):
     )
 
     bar_fig.update_layout(
-        height=600,
-        width=1200,
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=450,
+        width=100,
+        margin=dict(l=150, r=20, t=60, b=40),
         yaxis=dict(
             title="Rank (1 = Highest Impact Factor)",
             tickfont=dict(size=11),
