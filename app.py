@@ -208,10 +208,15 @@ def display_page(pathname):
             html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
             
             dcc.Dropdown(
-                id="companies-scientist-dropdown",
-                options=[{"label": "All Scientists", "value": "All"}] +
-                        [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
-                value="All",
+                 id="color-by-dropdown",
+                 options=[
+                    {"label": "Company", "value": "Company"},
+                    {"label": "Scientist", "value": "Scientist"},
+                    {"label": "Role", "value": "Role"},
+                    {"label": "Focus Area", "value": "Focus Area"}
+                ],
+                value="Company",  # default value
+                clearable=False,
                 style={'width': '50%', 'margin-bottom': '20px'}
             ),
 
@@ -439,9 +444,10 @@ def update_impact_section(selected_scientist, if_threshold):
     [Output('companies-kpi-output', 'children'),
      Output('companies-gantt-output', 'children'),
      Output('companies-table-output', 'children')],
-    [Input('companies-scientist-dropdown', 'value')]
+    [Input('companies-scientist-dropdown', 'value'),
+     Input('color-by-dropdown', 'value')]
 )
-def update_companies_section(selected_sci):
+def update_companies_section(selected_sci, color_by):
     companies_df = pd.read_excel(excel_file, sheet_name='Companies')
     summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
     summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
@@ -487,14 +493,14 @@ def update_companies_section(selected_sci):
                 ]), color="warning", inverse=True), width=3)
             ])
 
-    # Gantt chart
+  # Gantt chart
     gantt_fig = px.timeline(
         filtered_df,
         x_start="Start Year",
         x_end="End Year",
         y="Company" if selected_sci != "All" else "Scientist",
-        color="Company",
-        hover_data=["Role", "Focus Area"],
+        color=color_by,
+        hover_data=["Scientist", "Company", "Role", "Focus Area"],
         title=f"Career Timeline for {'All Scientists' if selected_sci == 'All' else selected_sci}"
     )
     gantt_fig.update_yaxes(autorange="reversed")
@@ -505,6 +511,7 @@ def update_companies_section(selected_sci):
         yaxis_title=None
     )
     gantt = dcc.Graph(figure=gantt_fig)
+
 
     # Table
     if selected_sci == "All":
