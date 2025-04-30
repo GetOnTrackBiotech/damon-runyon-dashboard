@@ -192,11 +192,97 @@ def display_page(pathname):
         # Tooltips
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
-
+    
     elif pathname == '/companies':
+        # Load data
+        companies_df = pd.read_excel(excel_file, sheet_name='Companies')
+        summary_df = pd.read_excel(excel_file, sheet_name='Innov. & Commer. Summary')
+
+        # Clean data
+        companies_df = companies_df.dropna(subset=["Scientist", "Company", "Start Year", "End Year / Current"])
+        companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
+        companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
+        companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
+
+        summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
+
+        # Merge for consistency
+        all_scientists = companies_df["Scientist"].unique()
+        summary_df = summary_df[summary_df["Scientist"].isin(all_scientists)]
+
+        def generate_kpi_cards(scientist_row):
+            return dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("Companies Founded", className="card-title"),
+                    html.H4(f"{scientist_row['Companies Founded']}"),
+                ]), className="mb-3"), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("Advisory Roles", className="card-title"),
+                    html.H4(f"{scientist_row['Advisory Roles']}"),
+                ]), className="mb-3"), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("IPOs / Acquisitions", className="card-title"),
+                    html.H4(f"{scientist_row['IPOs / Acquisitions']}"),
+                ]), className="mb-3"), width=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("FDA-Linked Patents", className="card-title"),
+                    html.H4(f"{scientist_row['FDA-Approved Patents']}"),
+                ]), className="mb-3"), width=3),
+            ])
+
+        # Gantt Chart
+        gantt_fig = px.timeline(
+            companies_df,
+            x_start="Start Year",
+            x_end="End Year",
+            y="Scientist",
+            color="Company",
+            hover_data=["Role", "Focus Area"],
+            title="Career Timeline of Company Roles"
+        )
+        gantt_fig.update_yaxes(autorange="reversed")
+
+        # DataTable
+        companies_table = dash_table.DataTable(
+            columns=[
+                {"name": "Scientist", "id": "Scientist"},
+                {"name": "Company", "id": "Company"},
+                {"name": "Role", "id": "Role"},
+                {"name": "Focus Area", "id": "Focus Area"},
+                {"name": "Start Year", "id": "Start Year"},
+                {"name": "End Year", "id": "End Year"},
+            ],
+            data=companies_df.to_dict('records'),
+            sort_action="native",
+            page_size=10,
+            style_table={'overflowX': 'auto'},
+            style_cell={'textAlign': 'left', 'padding': '5px'},
+            style_header={
+                'backgroundColor': '#4c00b0',
+                'color': 'white',
+                'fontWeight': 'bold'
+            }
+        )
+
         return dbc.Container([
             html.H2("Companies & Career Timeline"),
-            html.P("Career timelines and company data coming soon...")
+            html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
+
+            # KPI Cards (one group per scientist)
+            *[html.Div([
+                html.H4(scientist),
+                generate_kpi_cards(row)
+            ]) for scientist, row in summary_df.set_index("Scientist").iterrows()],
+
+            # Timeline
+            html.Hr(),
+            html.H4("Career Timeline"),
+            dcc.Graph(figure=gantt_fig),
+
+            # Table
+            html.Hr(),
+            html.H4("Company Roles Table"),
+            companies_table
         ])
 
     elif pathname == '/entrepreneurship':
