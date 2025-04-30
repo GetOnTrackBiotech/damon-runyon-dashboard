@@ -192,98 +192,34 @@ def display_page(pathname):
         # Tooltips
         dbc.Tooltip("Average journal impact factor for top 5 post-award publications.", target="tooltip-avg-impact", placement="top"),
     ])
-    
+      
     elif pathname == '/companies':
-        print(">>> Companies page loaded")
-        # Load data
         companies_df = pd.read_excel(excel_file, sheet_name='Companies')
-        summary_df = pd.read_excel(excel_file, sheet_name='Innov. & Commer. Summary')
-
-        # Clean data
-        companies_df = companies_df.dropna(subset=["Scientist", "Company", "Start Year", "End Year / Current"])
+        summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
+        
         companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
         companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
         companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
 
         summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
 
-        # Merge for consistency
-        all_scientists = companies_df["Scientist"].unique()
-        summary_df = summary_df[summary_df["Scientist"].isin(all_scientists)]
-
-        def generate_kpi_cards(scientist_row):
-            return dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Companies Founded", className="card-title"),
-                    html.H4(f"{scientist_row['Companies Founded']}"),
-                ]), className="mb-3"), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Advisory Roles", className="card-title"),
-                    html.H4(f"{scientist_row['Advisory Roles']}"),
-                ]), className="mb-3"), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("IPOs / Acquisitions", className="card-title"),
-                    html.H4(f"{scientist_row['IPOs / Acquisitions']}"),
-                ]), className="mb-3"), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("FDA-Linked Patents", className="card-title"),
-                    html.H4(f"{scientist_row['FDA-Approved Patents']}"),
-                ]), className="mb-3"), width=3),
-            ])
-
-        # Gantt Chart
-        gantt_fig = px.timeline(
-            companies_df,
-            x_start="Start Year",
-            x_end="End Year",
-            y="Scientist",
-            color="Company",
-            hover_data=["Role", "Focus Area"],
-            title="Career Timeline of Company Roles"
-        )
-        gantt_fig.update_yaxes(autorange="reversed")
-
-        # DataTable
-        companies_table = dash_table.DataTable(
-            columns=[
-                {"name": "Scientist", "id": "Scientist"},
-                {"name": "Company", "id": "Company"},
-                {"name": "Role", "id": "Role"},
-                {"name": "Focus Area", "id": "Focus Area"},
-                {"name": "Start Year", "id": "Start Year"},
-                {"name": "End Year", "id": "End Year"},
-            ],
-            data=companies_df.to_dict('records'),
-            sort_action="native",
-            page_size=10,
-            style_table={'overflowX': 'auto'},
-            style_cell={'textAlign': 'left', 'padding': '5px'},
-            style_header={
-                'backgroundColor': '#4c00b0',
-                'color': 'white',
-                'fontWeight': 'bold'
-            }
-        )
-
         return dbc.Container([
             html.H2("Companies & Career Timeline"),
             html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
 
-            # KPI Cards (one group per scientist)
-            *[html.Div([
-                html.H4(scientist),
-                generate_kpi_cards(row)
-            ]) for scientist, row in summary_df.set_index("Scientist").iterrows()],
+            dcc.Dropdown(
+                id="companies-scientist-dropdown",
+                options=[{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+                placeholder="Select a scientist",
+                value=sorted(companies_df['Scientist'].unique())[0],
+                style={'width': '50%', 'margin-bottom': '20px'}
+            ),
 
-            # Timeline
+            html.Div(id='companies-kpi-output'),
             html.Hr(),
-            html.H4("Career Timeline"),
-            dcc.Graph(figure=gantt_fig),
-
-            # Table
+            html.Div(id='companies-gantt-output'),
             html.Hr(),
-            html.H4("Company Roles Table"),
-            companies_table
+            html.Div(id='companies-table-output'),
         ])
 
     elif pathname == '/entrepreneurship':
@@ -437,7 +373,7 @@ def update_impact_section(selected_scientist, if_threshold):
     bar_fig.update_layout(
         height=600,
         width=1200,
-        margin=dict(l=300, r=20, t=60, b=80),
+        margin=dict(l=20, r=20, t=20, b=20),
         yaxis=dict(
             title="Rank (1 = Highest Impact Factor)",
             tickfont=dict(size=11),
@@ -498,6 +434,85 @@ def update_impact_section(selected_scientist, if_threshold):
 )
     kpi_display = f"Total Pubs: {total_pubs} | Avg IF: {avg_if} | Most Cited: {most_cited_count}"
     return kpi_display, bar_fig, scatter_fig, table
+@app.callback(
+    [Output('companies-kpi-output', 'children'),
+     Output('companies-gantt-output', 'children'),
+     Output('companies-table-output', 'children')],
+    [Input('companies-scientist-dropdown', 'value')]
+)
+def update_companies_section(selected_sci):
+    companies_df = pd.read_excel(excel_file, sheet_name='Companies')
+    summary_df = pd.read_excel(excel_file, sheet_name='Companies Summary')
+
+    # Clean data
+    companies_df = companies_df.dropna(subset=["Scientist", "Company", "Start Year", "End Year / Current"])
+    companies_df["End Year"] = companies_df["End Year / Current"].replace("Current", pd.Timestamp.now().year)
+    companies_df["End Year"] = pd.to_numeric(companies_df["End Year"], errors='coerce')
+    companies_df["Start Year"] = pd.to_numeric(companies_df["Start Year"], errors='coerce')
+
+    summary_df = summary_df.rename(columns={"Scientist Name": "Scientist"})
+
+    # KPI cards
+    row = summary_df[summary_df["Scientist"] == selected_sci].iloc[0]
+    kpi = dbc.Row([
+        dbc.Col(dbc.Card(dbc.CardBody([
+            html.H6("Companies Founded", className="card-title"),
+            html.H4(f"{row['Companies Founded']}")
+        ])), width=3),
+        dbc.Col(dbc.Card(dbc.CardBody([
+            html.H6("Advisory Roles", className="card-title"),
+            html.H4(f"{row['Advisory Roles']}")
+        ])), width=3),
+        dbc.Col(dbc.Card(dbc.CardBody([
+            html.H6("IPOs / Acquisitions", className="card-title"),
+            html.H4(f"{row['IPOs / Acquisitions']}")
+        ])), width=3),
+        dbc.Col(dbc.Card(dbc.CardBody([
+            html.H6("FDA-Linked Patents", className="card-title"),
+            html.H4(f"{row['FDA-Approved Patents']}")
+        ])), width=3)
+    ])
+
+    # Filter for selected scientist
+    filtered_df = companies_df[companies_df['Scientist'] == selected_sci]
+
+    # Gantt chart with unified styling
+    gantt_fig = px.timeline(
+        filtered_df,
+        x_start="Start Year",
+        x_end="End Year",
+        y="Company",
+        color="Company",
+        hover_data=["Role", "Focus Area"],
+        title=f"Career Timeline for {selected_sci}"
+    )
+
+    gantt_fig.update_yaxes(autorange="reversed")
+    gantt_fig.update_layout(
+        height=500,
+        margin=dict(l=20, r=20, t=40, b=40),
+        title_font=dict(size=18),
+        xaxis_title="Year",
+        yaxis_title=None
+    )
+
+    gantt = dcc.Graph(figure=gantt_fig)
+
+    # DataTable
+    table = dash_table.DataTable(
+        columns=[{"name": col, "id": col} for col in ["Company", "Role", "Focus Area", "Start Year", "End Year"]],
+        data=filtered_df.to_dict('records'),
+        style_table={'overflowX': 'auto'},
+        style_cell={'textAlign': 'left', 'padding': '5px'},
+        style_header={
+            'backgroundColor': '#4c00b0',
+            'color': 'white',
+            'fontWeight': 'bold'
+        },
+        page_size=10
+    )
+
+    return kpi, gantt, table
 
 # --- Run App ---
 if __name__ == '__main__':
