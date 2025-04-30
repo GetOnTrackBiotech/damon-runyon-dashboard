@@ -194,7 +194,7 @@ def display_page(pathname):
     ])
     
     elif pathname == '/companies':
-    print(">>> Companies page loaded")
+        print(">>> Companies page loaded")
         # Load data
         companies_df = pd.read_excel(excel_file, sheet_name='Companies')
         summary_df = pd.read_excel(excel_file, sheet_name='Innov. & Commer. Summary')
