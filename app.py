@@ -1,3 +1,4 @@
+from dash import dash_table
 import dash
 from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
@@ -155,7 +156,10 @@ def display_page(pathname):
                 ]), color="primary", inverse=True)),
             ], className="mb-4"),
 
-            dcc.Graph(id='avg-impact-chart'),
+            dbc.Row([
+    dbc.Col(dcc.Graph(id='avg-impact-chart'), width=6),
+    dbc.Col(dcc.Graph(id='scatter-impact-chart'), width=6),
+], className="mb-4"),
 
             dbc.Accordion([
                 dbc.AccordionItem([
@@ -262,38 +266,74 @@ def update_publications_section(selected_scientist):
             charts['cited-clin-chart'])
 
 # --- Publications Impact Section Callback ---
+# Add this inside your `update_impact_section` callback to upgrade the impact section as discussed
+# Replace the current body of update_impact_section with this:
+
 @app.callback(
     [Output('avg-impact', 'children'),
      Output('avg-impact-chart', 'figure'),
+     Output('scatter-impact-chart', 'figure'),
      Output('impact-table', 'children')],
     [Input('impact-scientist-dropdown', 'value')]
 )
 def update_impact_section(selected_scientist):
     if selected_scientist == 'All':
-        df = publications_impact_df.copy()
+        df = publications_impact_df.dropna(subset=["Scientist", "Impact Factor", "Total Citations"])
     else:
-        df = publications_df[publications_df['Scientist Name'] == selected_scientist]
+        df = publications_impact_df[(publications_impact_df['Scientist'] == selected_scientist)]
 
-    # Avg impact factor
+    # KPI Metrics
+    total_pubs = len(df)
     avg_if = round(df['Impact Factor'].mean(), 2)
+    most_cited_row = df.loc[df['Total Citations'].idxmax()]
+    most_cited_title = most_cited_row['Title']
+    most_cited_count = int(most_cited_row['Total Citations'])
 
-    # Impact factor bar chart
-    fig = px.bar(
-        df,
-        x='Journal',
-        y='Impact Factor',
+    # Bar Chart: Top 10 by Impact Factor
+    top10_df = df.sort_values(by='Impact Factor', ascending=False).head(10)
+    bar_fig = px.bar(
+        top10_df,
+        x='Impact Factor',
+        y='Title',
         color='Scientist',
-        title='Impact Factor of Top Publications',
-        hover_data=['Title']
+        orientation='h',
+        title='Top 10 Publications by Impact Factor',
+        hover_data=['Journal', 'Total Citations']
     )
 
-    # Simple table of top 5 publications
-    table = dbc.Table.from_dataframe(
-        df[['Title', 'Journal', 'Impact Factor']],
-        striped=True, bordered=True, hover=True, responsive=True
+    # Scatter Plot: Impact Factor vs Citations
+    scatter_fig = px.scatter(
+        df,
+        x='Impact Factor',
+        y='Total Citations',
+        color='Scientist',
+        hover_data=['Title', 'Journal'],
+        title='Impact Factor vs. Total Citations'
     )
 
-    return f"{avg_if}", fig, table
+    # Interactive Table
+    table = dash_table.DataTable(
+        data=df[['Scientist', 'Title', 'Journal', 'Impact Factor', 'Total Citations']].to_dict('records'),
+        columns=[{"name": i, "id": i} for i in ['Scientist', 'Title', 'Journal', 'Impact Factor', 'Total Citations']],
+        style_table={'overflowX': 'auto'},
+        style_cell={
+            'textAlign': 'left',
+            'padding': '5px',
+            'minWidth': '100px',
+            'whiteSpace': 'normal'
+        },
+        style_data_conditional=[
+            {
+                'if': {'column_id': 'Scientist'},
+                'backgroundColor': '#f5f5f5',
+                'fontWeight': 'bold'
+            }
+        ],
+        page_size=10
+    )
+
+    kpi_display = f"Total Pubs: {total_pubs} | Avg IF: {avg_if} | Most Cited: {most_cited_count}"
+    return kpi_display, bar_fig, scatter_fig, table
 
 # --- Run App ---
 if __name__ == '__main__':
