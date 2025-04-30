@@ -194,6 +194,7 @@ def display_page(pathname):
     ])
     
     elif pathname == '/companies':
+    print(">>> Companies page loaded")
         # Load data
         companies_df = pd.read_excel(excel_file, sheet_name='Companies')
         summary_df = pd.read_excel(excel_file, sheet_name='Innov. & Commer. Summary')
@@ -435,7 +436,7 @@ def update_impact_section(selected_scientist, if_threshold):
 
     bar_fig.update_layout(
         height=600,
-        width=1500,
+        width=1200,
         margin=dict(l=300, r=20, t=60, b=80),
         yaxis=dict(
             title="Rank (1 = Highest Impact Factor)",
