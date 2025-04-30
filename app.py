@@ -203,32 +203,29 @@ def display_page(pathname):
             html.H2("Companies & Career Timeline"),
             html.P("Explore company affiliations and career trajectories of Damon Runyon scientists."),
 
-            dcc.Dropdown(
-                id="companies-scientist-dropdown",
-                options=[{"label": "All Scientists", "value": "All"}] +
-                        [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
-                value="All",
-                style={'width': '50%', 'margin-bottom': '20px'}
-            ),
+            dbc.Row([
+    dbc.Col(dcc.Dropdown(
+        id="companies-scientist-dropdown",
+        options=[{"label": "All Scientists", "value": "All"}] +
+                [{"label": sci, "value": sci} for sci in sorted(companies_df['Scientist'].unique())],
+        value="All",
+        placeholder="Select a Scientist",
+        style={'margin-bottom': '10px'}
+    ), width=6),
 
-            dcc.Dropdown(
-                id="color-by-dropdown",
-                options=[
-                    {"label": "Company", "value": "Company"},
-                    {"label": "Scientist", "value": "Scientist"},
-                    {"label": "Role", "value": "Role"},
-                    {"label": "Focus Area", "value": "Focus Area"}
-                ],
-                value="Company",
-                style={'width': '50%', 'margin-bottom': '30px'}
-            ),
-
-            html.Div(id='companies-kpi-output'),
-            html.Hr(),
-            html.Div(id='companies-gantt-output'),
-            html.Hr(),
-            html.Div(id='companies-table-output'),
-        ])
+    dbc.Col(dcc.Dropdown(
+        id="color-by-dropdown",
+        options=[
+            {"label": "Company", "value": "Company"},
+            {"label": "Scientist", "value": "Scientist"},
+            {"label": "Role", "value": "Role"},
+            {"label": "Focus Area", "value": "Focus Area"}
+        ],
+        value="Company",
+        placeholder="Color By...",
+        style={'margin-bottom': '10px'}
+    ), width=6),
+], className="mb-4")
 
     elif pathname == '/entrepreneurship':
         return dbc.Container([
@@ -477,24 +474,39 @@ def update_companies_section(selected_sci, color_by):
             kpi = html.Div("No data available.")
         else:
             row = filtered_summary.iloc[0]
-            kpi = dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Companies Founded", className="card-title"),
-                    html.H4(f"{row['Companies Founded']}"),
-                ]), color="primary", inverse=True), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Advisory Roles", className="card-title"),
-                    html.H4(f"{row['Advisory Roles']}"),
-                ]), color="info", inverse=True), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("IPOs / Acquisitions", className="card-title"),
-                    html.H4(f"{row['IPOs / Acquisitions']}"),
-                ]), color="success", inverse=True), width=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("FDA-Linked Patents", className="card-title"),
-                    html.H4(f"{row['FDA-Approved Patents']}"),
-                ]), color="warning", inverse=True), width=3)
-            ])
+           kpi = dbc.Row([
+               dbc.Col(dbc.Card(
+                   dbc.CardBody([
+                       html.H6(html.Span("Companies Founded", title="Startups or co-founded companies"), className="card-title"),
+                       html.H4(html.Span(f"{row['Companies Founded']}", title=f"{row['Companies Founded']}"))
+               ]),
+               style={'padding': '15px', 'textAlign': 'center', 'height': '120px'}
+           ), width=3),
+
+               dbc.Col(dbc.Card(
+                   dbc.CardBody([
+                       html.H6(html.Span("Advisory Roles", title="Board or scientific advisory roles"), className="card-title"),
+                       html.H4(html.Span(f"{row['Advisory Roles']}", title=f"{row['Advisory Roles']}"))
+               ]),
+               style={'padding': '15px', 'textAlign': 'center', 'height': '120px'}
+           ), width=3),
+
+               dbc.Col(dbc.Card(
+                   dbc.CardBody([
+                       html.H6(html.Span("IPOs / Acquisitions", title="Public offerings or M&A outcomes"), className="card-title"),
+                       html.H4(html.Span(f"{row['IPOs / Acquisitions']}", title=f"{row['IPOs / Acquisitions']}"))
+               ]),
+               style={'padding': '15px', 'textAlign': 'center', 'height': '120px'}
+           ), width=3),
+
+               dbc.Col(dbc.Card(
+                   dbc.CardBody([
+                       html.H6(html.Span("FDA-Linked Patents", title="Patents connected to FDA-approved products"), className="card-title"),
+                       html.H4(html.Span(f"{row['FDA-Linked Patents']}", title=f"{row['FDA-Linked Patents']}"))
+               ]),
+               style={'padding': '15px', 'textAlign': 'center', 'height': '120px'}
+           ), width=3),
+       ], className="mb-4")
 
     # Gantt chart
     gantt_fig = px.timeline(
@@ -521,6 +533,11 @@ def update_companies_section(selected_sci, color_by):
                                  "Clinical Trials Linked", "FDA-Approved Patents"]]
     else:
         table_data = filtered_df[["Company", "Role", "Focus Area", "Start Year", "End Year"]]
+
+    if "Start Year" in table_data.columns:
+        table_data["Start Year"] = pd.to_datetime(table_data["Start Year"]).dt.year
+    if "End Year" in table_data.columns:
+        table_data["End Year"] = pd.to_datetime(table_data["End Year"]).dt.year
 
     table = dash_table.DataTable(
         columns=[{"name": col, "id": col} for col in table_data.columns],
