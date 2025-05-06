@@ -340,7 +340,7 @@ def display_page(pathname):
                 # SECTION 1: Hero Banner
                 html.Div([
                     html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
-                    html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from NIH grants to FDA breakthroughs."),
+                    html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from Damon Runyon Award to FDA breakthroughs."),
                 ], style={"marginBottom": "40px"}),
 
                 # SECTION 2: KPI Cards with Icons and Animation
@@ -385,23 +385,18 @@ def display_page(pathname):
                 # SECTION 3: Highlights Strip (Enhanced)
                 dbc.Row([
                     dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("🧬 100% with multiple NIH grants"),
+                        html.H5("100% with multiple NIH grants"),
                         html.Small("Most secured >1 grant post-award", className="text-muted")
                     ]), className="text-center shadow-sm"), md=3),
 
                     dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("🚀 19 companies launched"),
+                        html.H5("19 companies launched"),
                         html.Small("From drug dev to diagnostics", className="text-muted")
                     ]), className="text-center shadow-sm"), md=3),
 
                     dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("📈 1 FDA-linked patent"),
+                        html.H5("1 FDA-linked patent"),
                         html.Small("Resulting in approved therapy", className="text-muted")
-                    ]), className="text-center shadow-sm"), md=3),
-
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("🧑‍🔬 100% became PIs"),
-                        html.Small("Leading labs across institutions", className="text-muted")
                     ]), className="text-center shadow-sm"), md=3),
                 ], className="mb-4"),
 
