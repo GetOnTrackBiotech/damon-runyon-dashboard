@@ -343,45 +343,45 @@ def display_page(pathname):
                     html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from Damon Runyon Award to FDA breakthroughs."),
                 ], style={"marginBottom": "40px"}),
 
-                # SECTION 2: KPI Cards with Icons and Animation
-                dbc.Row([
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                            html.H6("Received NIH Grants"),
-                            html.H2("100%"),
-                            html.Small("All funded within 3 years", className="text-muted")
-                        ], className="text-center animate__animated animate__fadeInUp")
-                    ]), className="shadow-sm"), md=3),
+            # SECTION 2: KPI Cards with Glassmorphism
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.Div([
+                        html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                        html.H6("Received NIH Grants"),
+                        html.H2("100%"),
+                        html.Small("All funded within 3 years", className="text-muted")
+                    ], className="text-center animate__animated animate__fadeInUp")
+                ]), className="glass-card"), md=3),
 
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
-                            html.H6("Founded Companies"),
-                            html.H2("19"),
-                            html.Small("Biotech ventures launched", className="text-muted")
-                        ], className="text-center animate__animated animate__fadeInUp")
-                    ]), className="shadow-sm"), md=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.Div([
+                        html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
+                        html.H6("Founded Companies"),
+                        html.H2("19"),
+                        html.Small("Biotech ventures launched", className="text-muted")
+                    ], className="text-center animate__animated animate__fadeInUp")
+                ]), className="glass-card"), md=3),
 
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
-                            html.H6("FDA-Linked Patents"),
-                            html.H2("1"),
-                            html.Small("With approved indication", className="text-muted")
-                        ], className="text-center animate__animated animate__fadeInUp")
-                    ]), className="shadow-sm"), md=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.Div([
+                        html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
+                        html.H6("FDA-Linked Patents"),
+                        html.H2("1"),
+                        html.Small("With approved indication", className="text-muted")
+                    ], className="text-center animate__animated animate__fadeInUp")
+                ]), className="glass-card"), md=3),
 
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                            html.H6("Became PIs"),
-                            html.H2("100%"),
-                            html.Small("Now leading labs", className="text-muted")
-                        ], className="text-center animate__animated animate__fadeInUp")
-                    ]), className="shadow-sm"), md=3),
-                ], className="mb-4"),
-
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.Div([
+                        html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                        html.H6("Became PIs"),
+                        html.H2("100%"),
+                        html.Small("Now leading labs", className="text-muted")
+                    ], className="text-center animate__animated animate__fadeInUp")
+                ]), className="glass-card"), md=3),
+            ], className="mb-4"),
+                
                 # SECTION 3: Highlights Strip (Enhanced)
                 dbc.Row([
                     dbc.Col(dbc.Card(dbc.CardBody([
