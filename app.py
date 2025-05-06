@@ -35,7 +35,7 @@ timeline_data["Award Start Date"] = pd.to_datetime(timeline_data["Award Start Da
 timeline_data["NIH Months"] = timeline_data["Time to First NIH Grant (Post-Damon Runyon Award)"].str.extract(r"(\d+)").astype(float)
 
 import plotly.express as px
-timeline_fig = px.bar(
+timeline_fig_overview = px.bar(
     timeline_data,
     x="NIH Months",
     y="Scientist Name",
@@ -44,7 +44,7 @@ timeline_fig = px.bar(
     labels={"NIH Months": "Months to First NIH Grant"},
     color="Scientist Name"
 )
-timeline_fig.update_layout(height=500, margin=dict(l=100, r=40, t=50, b=50), showlegend=False)
+timeline_fig_overview.update_layout(height=500, margin=dict(l=100, r=40, t=50, b=50), showlegend=False)
 
 # --- Layout Components ---
 header = dbc.NavbarSimple(
@@ -82,7 +82,6 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    print("ROUTE:", pathname)
     if pathname == '/funding':
         fig = px.bar(funding_df,
                      x=funding_df.columns[0],
@@ -362,7 +361,7 @@ def display_page(pathname):
             ], className="mb-4"),
 
             # SECTION 4: Impact Timeline
-            dcc.Graph(figure=timeline_fig),
+            dcc.Graph(figure=timeline_fig_overview),
 
             # SECTION 5: Notable Achievements Table
             html.H4("Notable Achievements"),
@@ -374,6 +373,8 @@ def display_page(pathname):
                 style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
             )
         ])
+else:
+    return html.Div("404 Page Not Found")
 
 # --- Publications Section Callback ---
 @app.callback(
