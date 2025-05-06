@@ -53,7 +53,15 @@ header = dbc.NavbarSimple(
     brand_href="/",
     color="#4c00b0",
     dark=True,
-    children=[dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white"}))]
+    children=[
+        dbc.Switch(
+            id="theme-toggle",
+            label="🌙 Dark Mode",
+            value=False,
+            style={"marginRight": "20px", "color": "white"}
+        ),
+        dbc.NavItem(html.Span("Powered by SOPHIA", style={"color": "white"}))
+    ]
 )
 
 sidebar = dbc.Nav(
@@ -78,12 +86,16 @@ content = html.Div(id="page-content", style={
     "height": "calc(100vh - 70px)"
 })
 
-app.layout = html.Div([
-    dcc.Location(id="url"),
-    header,
-    sidebar,
-    content
-])
+app.layout = html.Div(
+    id="main-wrapper",
+    children=[
+        dcc.Location(id="url"),
+        header,
+        sidebar,
+        content
+    ]
+)
+
 # --- Page Routing Callback ---
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
@@ -343,63 +355,69 @@ def display_page(pathname):
                     html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from Damon Runyon Award to FDA breakthroughs."),
                 ], style={"marginBottom": "40px"}),
 
-            # SECTION 2: KPI Cards with Glassmorphism
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.Div([
-                        html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                        html.H6("Received NIH Grants"),
-                        html.H2("100%"),
-                        html.Small("All funded within 3 years", className="text-muted")
-                    ], className="text-center animate__animated animate__fadeInUp")
-                ]), className="glass-card"), md=3),
+                # SECTION 2 + 3 Combined: KPI Cards + Highlights Strip
+                html.Div([
+                    dbc.Row([
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("Received NIH Grants"),
+                                html.H2("100%"),
+                                html.Small("All funded within 3 years", className="text-muted")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
 
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.Div([
-                        html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
-                        html.H6("Founded Companies"),
-                        html.H2("19"),
-                        html.Small("Biotech ventures launched", className="text-muted")
-                    ], className="text-center animate__animated animate__fadeInUp")
-                ]), className="glass-card"), md=3),
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("Founded Companies"),
+                                html.H2("19"),
+                                html.Small("Biotech ventures launched", className="text-muted")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
 
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.Div([
-                        html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
-                        html.H6("FDA-Linked Patents"),
-                        html.H2("1"),
-                        html.Small("With approved indication", className="text-muted")
-                    ], className="text-center animate__animated animate__fadeInUp")
-                ]), className="glass-card"), md=3),
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("FDA-Linked Patents"),
+                                html.H2("1"),
+                                html.Small("With approved indication", className="text-muted")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
 
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.Div([
-                        html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                        html.H6("Became PIs"),
-                        html.H2("100%"),
-                        html.Small("Now leading labs", className="text-muted")
-                    ], className="text-center animate__animated animate__fadeInUp")
-                ]), className="glass-card"), md=3),
-            ], className="mb-4"),
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("Became PIs"),
+                                html.H2("100%"),
+                                html.Small("Now leading labs", className="text-muted")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
+                    ], className="mb-2"),
+
+                    dbc.Row([
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.H6("🧬 100% with multiple NIH grants", className="mb-0 text-center"),
+                            html.Small("Most secured >1 grant post-award", className="text-muted d-block text-center")
+                        ]), className="glass-card shadow-sm"), md=3),
+
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.H6("🚀 19 companies launched", className="mb-0 text-center"),
+                            html.Small("From drug dev to diagnostics", className="text-muted d-block text-center")
+                        ]), className="glass-card shadow-sm"), md=3),
+
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.H6("📈 1 FDA-linked patent", className="mb-0 text-center"),
+                            html.Small("Resulting in approved therapy", className="text-muted d-block text-center")
+                        ]), className="glass-card shadow-sm"), md=3),
+
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.H6("🧑‍🔬 100% became PIs", className="mb-0 text-center"),
+                            html.Small("Leading labs across institutions", className="text-muted d-block text-center")
+                        ]), className="glass-card shadow-sm"), md=3),
+                    ])
+                ])
                 
-                # SECTION 3: Highlights Strip (Enhanced)
-                dbc.Row([
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("100% with multiple NIH grants"),
-                        html.Small("Most secured >1 grant post-award", className="text-muted")
-                    ]), className="text-center shadow-sm"), md=3),
-
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("19 companies launched"),
-                        html.Small("From drug dev to diagnostics", className="text-muted")
-                    ]), className="text-center shadow-sm"), md=3),
-
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.H5("1 FDA-linked patent"),
-                        html.Small("Resulting in approved therapy", className="text-muted")
-                    ]), className="text-center shadow-sm"), md=3),
-                ], className="mb-4"),
-
                 # SECTION 4: Impact Timeline
                 html.Div([
                     dcc.Graph(figure=timeline_fig_overview)
@@ -741,6 +759,13 @@ def update_awards_table(scientist):
     if scientist and scientist != 'all':
         return awards_df[awards_df['Scientist Name'] == scientist].to_dict('records')
     return awards_df.to_dict('records')
+
+@app.callback(
+    Output("main-wrapper", "className"),
+    Input("theme-toggle", "value")
+)
+def toggle_theme(dark_mode):
+    return "dark-mode" if dark_mode else "light-mode"
 
 # --- Run App ---
 if __name__ == '__main__':
