@@ -5,11 +5,12 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 
-# Initialize App with LUX Bootstrap Theme
 app = dash.Dash(__name__, external_stylesheets=[
     dbc.themes.LUX,
-    "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"  
 ])
+
 app.title = "Damon Runyon Dashboard | SOPHIA"
 
 # Load Data
@@ -70,7 +71,12 @@ sidebar = dbc.Nav(
            "width": "250px", "padding": "20px", "background-color": "#f8f9fa"}
 )
 
-content = html.Div(id="page-content", style={"margin-left": "270px", "padding": "20px"})
+content = html.Div(id="page-content", style={
+    "margin-left": "270px",
+    "padding": "20px",
+    "overflowY": "auto",
+    "height": "calc(100vh - 70px)"
+})
 
 app.layout = html.Div([
     dcc.Location(id="url"),
@@ -330,49 +336,95 @@ def display_page(pathname):
 
     elif pathname == '/' or pathname == '':
         return dbc.Container([
-            # SECTION 1: Hero Banner
             html.Div([
-                html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
-                html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from NIH grants to FDA breakthroughs."),
-            ], style={"marginBottom": "40px"}),
+                # SECTION 1: Hero Banner
+                html.Div([
+                    html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
+                    html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from NIH grants to FDA breakthroughs."),
+                ], style={"marginBottom": "40px"}),
 
-            # SECTION 2: KPI Cards
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Received NIH Grants"), html.H2("100%")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Founded Companies"), html.H2("19")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("FDA-Linked Patents"), html.H2("1")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Became PIs"), html.H2("100%")
-                ]), className="shadow-sm"), md=3),
-            ], className="mb-4"),
+                # SECTION 2: KPI Cards with Icons and Animation
+                dbc.Row([
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                            html.H6("Received NIH Grants"),
+                            html.H2("100%"),
+                            html.Small("All funded within 3 years", className="text-muted")
+                        ], className="text-center animate__animated animate__fadeInUp")
+                    ]), className="shadow-sm"), md=3),
 
-            # SECTION 3: Highlights Strip
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧬 100% with multiple NIH grants")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🚀 19 companies launched")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("📈 1 FDA-linked patent")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧑‍🔬 100% became PIs")]), className="text-center")),
-            ], className="mb-4"),
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
+                            html.H6("Founded Companies"),
+                            html.H2("19"),
+                            html.Small("Biotech ventures launched", className="text-muted")
+                        ], className="text-center animate__animated animate__fadeInUp")
+                    ]), className="shadow-sm"), md=3),
 
-            # SECTION 4: Impact Timeline
-            dcc.Graph(figure=timeline_fig_overview),
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
+                            html.H6("FDA-Linked Patents"),
+                            html.H2("1"),
+                            html.Small("With approved indication", className="text-muted")
+                        ], className="text-center animate__animated animate__fadeInUp")
+                    ]), className="shadow-sm"), md=3),
 
-            # SECTION 5: Notable Achievements Table
-            html.H4("Notable Achievements"),
-            dash_table.DataTable(
-                data=notable_df.to_dict('records'),
-                columns=[{"name": i, "id": i} for i in notable_df.columns],
-                style_table={"overflowX": "auto"},
-                style_cell={"textAlign": "left", "padding": "6px"},
-                style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
-            )
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                            html.H6("Became PIs"),
+                            html.H2("100%"),
+                            html.Small("Now leading labs", className="text-muted")
+                        ], className="text-center animate__animated animate__fadeInUp")
+                    ]), className="shadow-sm"), md=3),
+                ], className="mb-4"),
+
+                # SECTION 3: Highlights Strip (Enhanced)
+                dbc.Row([
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.H5("🧬 100% with multiple NIH grants"),
+                        html.Small("Most secured >1 grant post-award", className="text-muted")
+                    ]), className="text-center shadow-sm"), md=3),
+
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.H5("🚀 19 companies launched"),
+                        html.Small("From drug dev to diagnostics", className="text-muted")
+                    ]), className="text-center shadow-sm"), md=3),
+
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.H5("📈 1 FDA-linked patent"),
+                        html.Small("Resulting in approved therapy", className="text-muted")
+                    ]), className="text-center shadow-sm"), md=3),
+
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.H5("🧑‍🔬 100% became PIs"),
+                        html.Small("Leading labs across institutions", className="text-muted")
+                    ]), className="text-center shadow-sm"), md=3),
+                ], className="mb-4"),
+
+                # SECTION 4: Impact Timeline
+                html.Div([
+                    dcc.Graph(figure=timeline_fig_overview)
+                ], className="animate__animated animate__fadeInUp", style={"paddingBottom": "40px"}),
+
+                # SECTION 5: Notable Achievements Table
+                html.H4("Notable Achievements"),
+                dash_table.DataTable(
+                    data=notable_df.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in notable_df.columns],
+                    style_table={"overflowX": "auto"},
+                    style_cell={"textAlign": "left", "padding": "6px"},
+                    style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
+                )
+            ], style={
+                "padding": "40px",
+                "background": "linear-gradient(180deg, #ffffff 0%, #f5f0ff 100%)"
+            })
         ])
+    
     else:
         return html.Div("404 Page Not Found")
 
