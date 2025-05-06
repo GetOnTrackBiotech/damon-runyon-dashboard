@@ -328,8 +328,8 @@ def display_page(pathname):
             )
         ])
 
-   elif pathname == '/' or pathname == '':
-    return dbc.Container([
+    elif pathname == '/' or pathname == '':
+        return dbc.Container([
             # SECTION 1: Hero Banner
             html.Div([
                 html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
