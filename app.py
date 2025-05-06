@@ -21,6 +21,31 @@ publications_impact_df = pd.read_excel(excel_file, sheet_name='Publications Impa
 
 scientists = funding_df[funding_df.columns[0]].dropna().unique()
 
+# Load Overview-specific data
+notable_df = pd.read_excel(excel_file, sheet_name="Companies Summary")[
+    ["Scientist", "Current Academic Position", "Notable Awards", "High-Impact Publications (#)",
+     "Total Funding Raised by Companies", "IPOs / Acquisitions"]
+].dropna(how="all")
+
+timeline_data = pd.read_excel(excel_file, sheet_name="NIH & Grant Funding Impact")[[
+    "Scientist Name", "Award Start Date", "Time to First NIH Grant (Post-Damon Runyon Award)"
+]].copy()
+
+timeline_data["Award Start Date"] = pd.to_datetime(timeline_data["Award Start Date"], errors="coerce")
+timeline_data["NIH Months"] = timeline_data["Time to First NIH Grant (Post-Damon Runyon Award)"].str.extract(r"(\d+)").astype(float)
+
+import plotly.express as px
+timeline_fig = px.bar(
+    timeline_data,
+    x="NIH Months",
+    y="Scientist Name",
+    orientation="h",
+    title="Time to First NIH Grant (Months)",
+    labels={"NIH Months": "Months to First NIH Grant"},
+    color="Scientist Name"
+)
+timeline_fig.update_layout(height=500, margin=dict(l=100, r=40, t=50, b=50), showlegend=False)
+
 # --- Layout Components ---
 header = dbc.NavbarSimple(
     brand="Damon Runyon Metrics Dashboard",
@@ -304,22 +329,51 @@ def display_page(pathname):
         ])
 
     else:
-        total_funding = funding_df['Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)'].sum()
-        total_awards = awards_df.shape[0]
         return dbc.Container([
-            html.H2("Overview"),
+            # SECTION 1: Hero Banner
+            html.Div([
+                html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
+                html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from NIH grants to FDA breakthroughs."),
+            ], style={"marginBottom": "40px"}),
+
+            # SECTION 2: KPI Cards
             dbc.Row([
                 dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Total NIH Funding"),
-                    html.H2(f"${total_funding:,.0f}")
-                ]), color="primary", inverse=True)),
-
+                    html.H6("Received NIH Grants"), html.H2("100%")
+                ]), className="shadow-sm"), md=3),
                 dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H4("Total Awards"),
-                    html.H2(f"{total_awards}")
-                ]), color="info", inverse=True)),
-            ])
+                    html.H6("Founded Companies"), html.H2("19")
+                ]), className="shadow-sm"), md=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("FDA-Linked Patents"), html.H2("1")
+                ]), className="shadow-sm"), md=3),
+                dbc.Col(dbc.Card(dbc.CardBody([
+                    html.H6("Became PIs"), html.H2("100%")
+                ]), className="shadow-sm"), md=3),
+            ], className="mb-4"),
+
+            # SECTION 3: Highlights Strip
+            dbc.Row([
+                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧬 100% with multiple NIH grants")]), className="text-center")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🚀 19 companies launched")]), className="text-center")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.Div("📈 1 FDA-linked patent")]), className="text-center")),
+                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧑‍🔬 100% became PIs")]), className="text-center")),
+            ], className="mb-4"),
+
+            # SECTION 4: Impact Timeline
+            dcc.Graph(figure=timeline_fig),
+
+            # SECTION 5: Notable Achievements Table
+            html.H4("Notable Achievements"),
+            dash_table.DataTable(
+                data=notable_df.to_dict('records'),
+                columns=[{"name": i, "id": i} for i in notable_df.columns],
+                style_table={"overflowX": "auto"},
+                style_cell={"textAlign": "left", "padding": "6px"},
+                style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
+            )
         ])
+
 # --- Publications Section Callback ---
 @app.callback(
     [Output('total-pubs', 'children'),
