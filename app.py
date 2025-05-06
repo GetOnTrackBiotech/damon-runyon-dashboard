@@ -82,52 +82,6 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/' or pathname == '':
-        return dbc.Container([
-            # SECTION 1: Hero Banner
-            html.Div([
-                html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
-                html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from NIH grants to FDA breakthroughs."),
-            ], style={"marginBottom": "40px"}),
-
-            # SECTION 2: KPI Cards
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Received NIH Grants"), html.H2("100%")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Founded Companies"), html.H2("19")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("FDA-Linked Patents"), html.H2("1")
-                ]), className="shadow-sm"), md=3),
-                dbc.Col(dbc.Card(dbc.CardBody([
-                    html.H6("Became PIs"), html.H2("100%")
-                ]), className="shadow-sm"), md=3),
-            ], className="mb-4"),
-
-            # SECTION 3: Highlights Strip
-            dbc.Row([
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧬 100% with multiple NIH grants")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🚀 19 companies launched")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("📈 1 FDA-linked patent")]), className="text-center")),
-                dbc.Col(dbc.Card(dbc.CardBody([html.Div("🧑‍🔬 100% became PIs")]), className="text-center")),
-            ], className="mb-4"),
-
-            # SECTION 4: Impact Timeline
-            dcc.Graph(figure=timeline_fig),
-
-            # SECTION 5: Notable Achievements Table
-            html.H4("Notable Achievements"),
-            dash_table.DataTable(
-                data=notable_df.to_dict('records'),
-                columns=[{"name": i, "id": i} for i in notable_df.columns],
-                style_table={"overflowX": "auto"},
-                style_cell={"textAlign": "left", "padding": "6px"},
-                style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
-            )
-        ])
-
     if pathname == '/funding':
         fig = px.bar(funding_df,
                      x=funding_df.columns[0],
@@ -374,8 +328,8 @@ def display_page(pathname):
             )
         ])
 
-    else:
-        return dbc.Container([
+   elif pathname == '/' or pathname == '':
+    return dbc.Container([
             # SECTION 1: Hero Banner
             html.Div([
                 html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
@@ -738,7 +692,6 @@ def update_awards_table(scientist):
     if scientist and scientist != 'all':
         return awards_df[awards_df['Scientist Name'] == scientist].to_dict('records')
     return awards_df.to_dict('records')
-    return fig
 
 # --- Run App ---
 if __name__ == '__main__':
