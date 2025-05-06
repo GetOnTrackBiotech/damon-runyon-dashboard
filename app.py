@@ -82,6 +82,7 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
+    print("ROUTE:", pathname)
     if pathname == '/funding':
         fig = px.bar(funding_df,
                      x=funding_df.columns[0],
