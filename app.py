@@ -373,8 +373,8 @@ def display_page(pathname):
                 style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
             )
         ])
-else:
-    return html.Div("404 Page Not Found")
+    else:
+        return html.Div("404 Page Not Found")
 
 # --- Publications Section Callback ---
 @app.callback(
