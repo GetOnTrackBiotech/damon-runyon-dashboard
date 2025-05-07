@@ -67,7 +67,6 @@ header = dbc.NavbarSimple(
 sidebar = dbc.Nav(
     [
         dbc.NavLink("Overview", href="/", active="exact"),
-        dbc.NavLink("NIH Funding", href="/funding", active="exact"),
         dbc.NavLink("Publications", href="/publications", active="exact"),
         dbc.NavLink("Publication Impact", href="/impact", active="exact"),
         dbc.NavLink("Companies & Career Timeline", href="/companies", active="exact"),
@@ -100,14 +99,6 @@ app.layout = html.Div(
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/funding':
-        fig = px.bar(funding_df,
-                     x=funding_df.columns[0],
-                     y='Total Federal Funding (NIH only) Dollars Secured (Post-Damon Runyon Award)',
-                     title='Total NIH Funding by Scientist',
-                     color=funding_df.columns[0])
-        return dbc.Container([html.H2("NIH Funding"), dcc.Graph(figure=fig)])
-
     elif pathname == '/publications':
         return dbc.Container([
             html.H2("Publications Overview"),
