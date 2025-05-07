@@ -410,18 +410,15 @@ def display_page(pathname):
                             html.H6("📈 1 FDA-linked patent", className="mb-0 text-center"),
                             html.Small("Resulting in approved therapy", className="text-muted d-block text-center")
                         ]), className="glass-card shadow-sm"), md=3),
+                    ], justify="center", className="mb-5")
 
-                        dbc.Col(dbc.Card(dbc.CardBody([
-                            html.H6("🧑‍🔬 100% became PIs", className="mb-0 text-center"),
-                            html.Small("Leading labs across institutions", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=3),
                     ])
                 ]),
                 
                 # SECTION 4: Impact Timeline
                 html.Div([
                     dcc.Graph(figure=timeline_fig_overview)
-                ], className="animate__animated animate__fadeInUp", style={"paddingBottom": "40px"}),
+                ], className="animate__animated animate__fadeInUp", style={"paddingTop": "30px", "paddingBottom": "40px"}),
 
                 # SECTION 5: Notable Achievements Table
                 html.H4("Notable Achievements"),
