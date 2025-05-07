@@ -416,7 +416,7 @@ def display_page(pathname):
                             html.Small("Leading labs across institutions", className="text-muted d-block text-center")
                         ]), className="glass-card shadow-sm"), md=3),
                     ])
-                ])
+                ]),
                 
                 # SECTION 4: Impact Timeline
                 html.Div([
