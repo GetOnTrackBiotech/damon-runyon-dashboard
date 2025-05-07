@@ -399,20 +399,19 @@ def display_page(pathname):
                         dbc.Col(dbc.Card(dbc.CardBody([
                             html.H6("🧬 100% with multiple NIH grants", className="mb-0 text-center"),
                             html.Small("Most secured >1 grant post-award", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=3),
+                        ]), className="glass-card shadow-sm"), md=4),
 
                         dbc.Col(dbc.Card(dbc.CardBody([
                             html.H6("🚀 19 companies launched", className="mb-0 text-center"),
                             html.Small("From drug dev to diagnostics", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=3),
+                        ]), className="glass-card shadow-sm"), md=4),
 
                         dbc.Col(dbc.Card(dbc.CardBody([
                             html.H6("📈 1 FDA-linked patent", className="mb-0 text-center"),
                             html.Small("Resulting in approved therapy", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=3),
+                        ]), className="glass-card shadow-sm"), md=4),
                     ], justify="center", className="mb-5")
 
-                    ])
                 ]),
                 
                 # SECTION 4: Impact Timeline
