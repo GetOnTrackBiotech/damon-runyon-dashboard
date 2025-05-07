@@ -412,33 +412,30 @@ def display_page(pathname):
                 ], className="mb-2"),
 
                 dbc.Row([
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.H6("🧬 100% with multiple NIH grants", className="mb-0 text-center"),
-                            html.Small("Most secured >1 grant post-award", className="text-muted d-block text-center")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=4),
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.H2("100%", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                            html.H6("with multiple NIH grants"),
+                            html.Small("Most secured >1 grant post-award", className="text-muted")
+                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
 
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.H6("🚀 19 companies launched", className="mb-0 text-center"),
-                            html.Small("From drug dev to diagnostics", className="text-muted d-block text-center")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=4),
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.H2("19", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                            html.H6("Companies Launched"),
+                            html.Small("From drug dev to diagnostics", className="text-muted")
+                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
 
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.H6("📈 1 FDA-linked patent", className="mb-0 text-center"),
-                            html.Small("Resulting in approved therapy", className="text-muted d-block text-center")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=4),
-                ], justify="center", className="mb-5")
+                    dbc.Col(dbc.Card(dbc.CardBody([
+                        html.Div([
+                            html.H2("1", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                            html.H6("FDA-Linked Patent"),
+                            html.Small("Resulting in approved therapy", className="text-muted")
+                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
+                ], justify="center", className="mb-5"),
             ]),
 
                 # SECTION 4: Timeline Chart
