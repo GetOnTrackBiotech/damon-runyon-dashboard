@@ -395,25 +395,33 @@ def display_page(pathname):
                         ]), className="glass-card shadow-sm"), md=3),
                     ], className="mb-2"),
 
+                    # SECTION 3: Highlights Strip - Refined
                     dbc.Row([
                         dbc.Col(dbc.Card(dbc.CardBody([
-                            html.H6("🧬 100% with multiple NIH grants", className="mb-0 text-center"),
-                            html.Small("Most secured >1 grant post-award", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=4),
+                            html.Div([
+                                html.I(className="bi bi-diagram-3-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("100% with Multiple NIH Grants"),
+                                html.Small("Most secured >1 grant post-award", className="text-muted d-block")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
 
                         dbc.Col(dbc.Card(dbc.CardBody([
-                            html.H6("🚀 19 companies launched", className="mb-0 text-center"),
-                            html.Small("From drug dev to diagnostics", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=4),
+                            html.Div([
+                                html.I(className="bi bi-rocket-takeoff-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("19 Companies Launched"),
+                                html.Small("From drug dev to diagnostics", className="text-muted d-block")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
 
                         dbc.Col(dbc.Card(dbc.CardBody([
-                            html.H6("📈 1 FDA-linked patent", className="mb-0 text-center"),
-                            html.Small("Resulting in approved therapy", className="text-muted d-block text-center")
-                        ]), className="glass-card shadow-sm"), md=4),
+                            html.Div([
+                                html.I(className="bi bi-patch-check-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                html.H6("1 FDA-Linked Patent"),
+                                html.Small("Resulting in approved therapy", className="text-muted d-block")
+                            ], className="text-center animate__animated animate__fadeInUp")
+                        ]), className="glass-card shadow-sm"), md=3),
                     ], justify="center", className="mb-5")
 
-                ]),
-                
                 # SECTION 4: Impact Timeline
                 html.Div([
                     dcc.Graph(figure=timeline_fig_overview)
