@@ -439,7 +439,7 @@ def display_page(pathname):
                         style={"height": "180px"}
                     ), md=4),
                 ], justify="center", className="mb-5")
-            ])
+            ]),
 
                 # SECTION 4: Timeline Chart
                 html.Div([
