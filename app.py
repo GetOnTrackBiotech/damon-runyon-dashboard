@@ -99,6 +99,118 @@ app.layout = html.Div(
 @app.callback(Output('page-content', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
+    if pathname == '/' or pathname == '':
+        return dbc.Container([
+            html.Div([
+                # SECTION 1: Hero Banner
+                html.Div([
+                    html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
+                    html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from Damon Runyon Award to FDA breakthroughs.")
+                ], style={"marginBottom": "40px"}),
+
+                # SECTION 2 + 3 Combined: KPI Cards + Highlights Strip
+                html.Div([
+                    dbc.Row([
+                        dbc.Col(dbc.Card(
+                            dbc.CardBody([
+                                html.Div([
+                                    html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                    html.H6("Received NIH Grants"),
+                                    html.H2("100%"),
+                                    html.Small("All funded within 3 years", className="text-muted")
+                                ], className="text-center animate__animated animate__fadeInUp")
+                            ]),
+                            className="glass-card shadow-sm",
+                            style={"height": "180px"}
+                        ), md=3),
+
+                        dbc.Col(dbc.Card(
+                            dbc.CardBody([
+                                html.Div([
+                                    html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                    html.H6("Founded Companies"),
+                                    html.H2("19"),
+                                    html.Small("Biotech ventures launched", className="text-muted")
+                                ], className="text-center animate__animated animate__fadeInUp")
+                            ]),
+                            className="glass-card shadow-sm",
+                            style={"height": "180px"}
+                        ), md=3),
+
+                        dbc.Col(dbc.Card(
+                            dbc.CardBody([
+                                html.Div([
+                                    html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                    html.H6("FDA-Linked Patents"),
+                                    html.H2("1"),
+                                    html.Small("With approved indication", className="text-muted")
+                                ], className="text-center animate__animated animate__fadeInUp")
+                            ]),
+                            className="glass-card shadow-sm",
+                            style={"height": "180px"}
+                        ), md=3),
+
+                        dbc.Col(dbc.Card(
+                            dbc.CardBody([
+                                html.Div([
+                                    html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
+                                    html.H6("Became PIs"),
+                                    html.H2("100%"),
+                                    html.Small("Now leading labs", className="text-muted")
+                                ], className="text-center animate__animated animate__fadeInUp")
+                            ]),
+                            className="glass-card shadow-sm",
+                            style={"height": "180px"}
+                        ), md=3),
+                    ], className="mb-2"),
+
+                    dbc.Row([
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.H2("100%", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                                html.H6("with multiple NIH grants"),
+                                html.Small("Most secured >1 grant post-award", className="text-muted")
+                            ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                        ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
+
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.H2("19", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                                html.H6("Companies Launched"),
+                                html.Small("From drug dev to diagnostics", className="text-muted")
+                            ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                        ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
+
+                        dbc.Col(dbc.Card(dbc.CardBody([
+                            html.Div([
+                                html.H2("1", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
+                                html.H6("FDA-Linked Patent"),
+                                html.Small("Resulting in approved therapy", className="text-muted")
+                            ], className="d-flex flex-column align-items-center justify-content-center text-center")
+                        ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
+                    ], justify="center", className="mb-5"),
+                ]),
+
+                # SECTION 4: Timeline Chart
+                html.Div([
+                    dcc.Graph(figure=timeline_fig_overview)
+                ], className="animate__animated animate__fadeInUp", style={"paddingTop": "30px", "paddingBottom": "40px"}),
+
+                # SECTION 5: Notable Achievements
+                html.H4("Notable Achievements"),
+                dash_table.DataTable(
+                    data=notable_df.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in notable_df.columns],
+                    style_table={"overflowX": "auto"},
+                    style_cell={"textAlign": "left", "padding": "6px"},
+                    style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
+                )
+            ], style={
+                "padding": "40px",
+                "background": "linear-gradient(180deg, #ffffff 0%, #f5f0ff 100%)"
+            })
+        ])
+
     elif pathname == '/publications':
         return dbc.Container([
             html.H2("Publications Overview"),
@@ -335,118 +447,6 @@ def display_page(pathname):
                 filter_action="native",
                 style_cell={'textAlign': 'left'}
             )
-        ])
-    
-    elif pathname == '/' or pathname == '':
-        return dbc.Container([
-            html.Div([
-                # SECTION 1: Hero Banner
-                html.Div([
-                    html.H1("Impact Beyond Funding", style={"color": "#4c00b0", "fontWeight": "bold"}),
-                    html.P("SOPHIA reveals the real-world reach of Damon Runyon scientists — from Damon Runyon Award to FDA breakthroughs.")
-                ], style={"marginBottom": "40px"}),
-
-               # SECTION 2 + 3 Combined: KPI Cards + Highlights Strip
-            html.Div([
-                dbc.Row([
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.Div([
-                                html.I(className="bi bi-award-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                                html.H6("Received NIH Grants"),
-                                html.H2("100%"),
-                                html.Small("All funded within 3 years", className="text-muted")
-                            ], className="text-center animate__animated animate__fadeInUp")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=3),
-
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.Div([
-                                html.I(className="bi bi-building", style={"fontSize": "28px", "color": "#4c00b0"}),
-                                html.H6("Founded Companies"),
-                                html.H2("19"),
-                                html.Small("Biotech ventures launched", className="text-muted")
-                            ], className="text-center animate__animated animate__fadeInUp")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=3),
-
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.Div([
-                                html.I(className="bi bi-capsule", style={"fontSize": "28px", "color": "#4c00b0"}),
-                                html.H6("FDA-Linked Patents"),
-                                html.H2("1"),
-                                html.Small("With approved indication", className="text-muted")
-                            ], className="text-center animate__animated animate__fadeInUp")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=3),
-
-                    dbc.Col(dbc.Card(
-                        dbc.CardBody([
-                            html.Div([
-                                html.I(className="bi bi-person-badge-fill", style={"fontSize": "28px", "color": "#4c00b0"}),
-                                html.H6("Became PIs"),
-                                html.H2("100%"),
-                                html.Small("Now leading labs", className="text-muted")
-                            ], className="text-center animate__animated animate__fadeInUp")
-                        ]),
-                        className="glass-card shadow-sm",
-                        style={"height": "180px"}
-                    ), md=3),
-                ], className="mb-2"),
-
-                dbc.Row([
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.H2("100%", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
-                            html.H6("with multiple NIH grants"),
-                            html.Small("Most secured >1 grant post-award", className="text-muted")
-                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
-                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
-
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.H2("19", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
-                            html.H6("Companies Launched"),
-                            html.Small("From drug dev to diagnostics", className="text-muted")
-                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
-                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
-
-                    dbc.Col(dbc.Card(dbc.CardBody([
-                        html.Div([
-                            html.H2("1", style={"fontWeight": "bold", "color": "#4c00b0", "fontSize": "28px"}),
-                            html.H6("FDA-Linked Patent"),
-                            html.Small("Resulting in approved therapy", className="text-muted")
-                        ], className="d-flex flex-column align-items-center justify-content-center text-center")
-                    ]), className="glass-card shadow-sm", style={"height": "180px"}), md=4),
-                ], justify="center", className="mb-5"),
-            ]),
-
-                # SECTION 4: Timeline Chart
-                html.Div([
-                    dcc.Graph(figure=timeline_fig_overview)
-                ], className="animate__animated animate__fadeInUp", style={"paddingTop": "30px", "paddingBottom": "40px"}),
-
-                # SECTION 5: Notable Achievements
-                html.H4("Notable Achievements"),
-                dash_table.DataTable(
-                    data=notable_df.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in notable_df.columns],
-                    style_table={"overflowX": "auto"},
-                    style_cell={"textAlign": "left", "padding": "6px"},
-                    style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"}
-                )
-            ], style={
-                "padding": "40px",
-                "background": "linear-gradient(180deg, #ffffff 0%, #f5f0ff 100%)"
-            })
         ])
     
     else:
